@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foxes Team Daily Wheel</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 127, 80, 0.5);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) scale(0);
+            }
+            10% {
+                transform: translateY(90vh) scale(1);
+            }
+            90% {
+                transform: translateY(-10vh) scale(1);
+            }
+        }
+
+        /* Main container */
+        .container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Team title */
+        .team-title {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff7f50, #ff6347, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            margin-top: -2rem;
+            text-shadow: 0 0 40px rgba(255, 127, 80, 0.5);
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .day-name {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff7f50, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            margin-top: -0.5rem;
+        }
+
+        .countdown {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        /* Friday special effects */
+        .friday-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 30%, #11998e 70%, #38ef7d 100%);
+            animation: fridayGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes fridayGlow {
+            from {
+                filter: brightness(1) saturate(1);
+            }
+            to {
+                filter: brightness(1.1) saturate(1.2);
+            }
+        }
+
+        .friday-text {
+            background: linear-gradient(135deg, #38ef7d, #11998e, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fridayRainbow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes fridayRainbow {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(360deg); }
+        }
+
+        /* Always visible stats panel */
+        .stats-panel-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 127, 80, 0.3);
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+        }
+
+        .current-streak-display {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+
+        .streak-count {
+            color: #ff6347;
+            font-weight: 700;
+        }
+
+
+        .stats-title {
+            color: #ff7f50;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .pick-history {
+            font-size: 0.8rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.2rem 0;
+            border-bottom: 1px solid rgba(255, 127, 80, 0.2);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-count {
+            color: #ff7f50;
+            font-weight: 600;
+        }
+
+        /* Wheel container */
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(255, 127, 80, 0.4),
+                        0 0 100px rgba(255, 127, 80, 0.2),
+                        inset 0 0 60px rgba(0, 0, 0, 0.3);
+            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        #wheelChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Center pin */
+        .center-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+                        0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        /* Pointer */
+        .pointer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-top: 50px solid #ff7f50;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+            z-index: 30;
+        }
+
+        /* Spin button */
+        .spin-button {
+            margin-bottom: 2rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #ff7f50, #ff4500);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 127, 80, 0.4),
+                        0 0 40px rgba(255, 127, 80, 0.2);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .spin-button:hover::before {
+            left: 100%;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255, 127, 80, 0.6),
+                        0 0 60px rgba(255, 127, 80, 0.3);
+        }
+
+        .spin-button:active {
+            transform: translateY(0);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Winner display */
+        .winner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 5rem;
+            border-radius: 20px;
+            z-index: 100;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 127, 80, 0.5);
+            box-shadow: 0 0 60px rgba(255, 127, 80, 0.5);
+        }
+
+        .winner.show {
+            animation: popIn 0.5s ease-out forwards;
+        }
+
+        @keyframes popIn {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .winner h2 {
+            font-size: 2.5rem;
+            color: #ff7f50;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 127, 80, 0.8);
+        }
+
+        .winner-name {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff7f50, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .close-winner {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 2px solid #ff7f50;
+            color: #ff7f50;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-winner:hover {
+            background: #ff7f50;
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 127, 80, 0.5);
+        }
+
+        /* Fox emoji */
+        .fox-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated particles background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Always Visible Stats Panel -->
+    <div class="stats-panel-fixed">
+        <div class="stats-title">Team Stats</div>
+        <div class="current-streak-display" id="currentStreakDisplay">
+            No picks yet
+        </div>
+        <div class="pick-history" id="pickHistory">
+            <!-- History items will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="team-title">FOXES TEAM</h1>
+        <div class="day-name" id="dayName">IT'S MONDAY</div>
+        <div class="countdown" id="countdown">4 days until Friday</div>
+
+        <button class="spin-button" id="spinButton">SPIN THE WHEEL</button>
+
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="chart-container" id="chartContainer">
+                <canvas id="wheelChart"></canvas>
+            </div>
+            <div class="center-pin">🦊</div>
+        </div>
+    </div>
+
+    <div class="winner" id="winner">
+        <span class="fox-emoji">🦊</span>
+        <h2>Today's Speaker</h2>
+        <div class="winner-name" id="winnerName"></div>
+        <button class="close-winner" id="closeWinner">Continue</button>
+    </div>
+
+    <script>
+        const names = ['Pedro', 'Paul', 'Dimitris', 'Vlad', 'Gossip'];
+        const colors = ['#ff7f50', '#ff6347', '#ff4500', '#dc143c', '#b22222'];
+
+        let chart;
+        let isSpinning = false;
+        let currentRotation = 0;
+
+        // Stats tracking
+        let pickStats = {
+            currentStreak: { person: null, count: 0 },
+            totalPicks: {}
+        };
+
+        // Initialize stats from localStorage
+        function loadStats() {
+            const saved = localStorage.getItem('foxesWheelStats');
+            if (saved) {
+                pickStats = JSON.parse(saved);
+            } else {
+                // Initialize with zero counts
+                names.forEach(name => {
+                    pickStats.totalPicks[name] = 0;
+                });
+            }
+        }
+
+        // Save stats to localStorage
+        function saveStats() {
+            localStorage.setItem('foxesWheelStats', JSON.stringify(pickStats));
+        }
+
+        // Update stats when someone is picked
+        function updateStats(winner) {
+            // Update total picks
+            pickStats.totalPicks[winner] = (pickStats.totalPicks[winner] || 0) + 1;
+
+            // Update current streak
+            if (pickStats.currentStreak.person === winner) {
+                pickStats.currentStreak.count++;
+            } else {
+                pickStats.currentStreak = { person: winner, count: 1 };
+            }
+
+            saveStats();
+            displayStats();
+        }
+
+        // Display current stats
+        function displayStats() {
+            const streakDisplayElement = document.getElementById('currentStreakDisplay');
+            const historyElement = document.getElementById('pickHistory');
+
+            // Show current streak
+            if (pickStats.currentStreak.person) {
+                const count = pickStats.currentStreak.count;
+                const streakText = count === 1 ?
+                    `Current: ${pickStats.currentStreak.person}` :
+                    `${pickStats.currentStreak.person} (${count} in a row!)`;
+                streakDisplayElement.innerHTML = `<span class="streak-count">${streakText}</span>`;
+            } else {
+                streakDisplayElement.innerHTML = 'No picks yet';
+            }
+
+            // Show pick history
+            historyElement.innerHTML = '';
+            names.forEach(name => {
+                const count = pickStats.totalPicks[name] || 0;
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `<span>${name}</span><span class="history-count">${count}</span>`;
+                historyElement.appendChild(item);
+            });
+        }
+
+        // Set up day display
+        function setupDateDisplay() {
+            const now = new Date();
+            const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+
+            const dayName = dayNames[now.getDay()];
+            const currentDayIndex = now.getDay();
+            
+            // Calculate days until Friday (Friday is index 5)
+            let daysUntilFriday;
+            if (currentDayIndex <= 5) { // Sunday to Friday
+                daysUntilFriday = 5 - currentDayIndex;
+            } else { // Saturday
+                daysUntilFriday = 6; // Saturday to next Friday
+            }
+            
+            // Friday special display!
+            if (dayName === 'FRIDAY') {
+                document.getElementById('dayName').textContent = "IT'S FRIDAYYYY!!!";
+                document.getElementById('countdown').textContent = "🎉 The best day is here! 🎉";
+                document.body.classList.add('friday-mode');
+                document.getElementById('dayName').classList.add('friday-text');
+
+                // Add some Friday particles
+                createFridayParticles();
+            } else {
+                // Show day and countdown separately
+                document.getElementById('dayName').textContent = `IT'S ${dayName}`;
+                
+                if (daysUntilFriday === 1) {
+                    document.getElementById('countdown').textContent = "Tomorrow is Friday!";
+                } else {
+                    document.getElementById('countdown').textContent = `${daysUntilFriday} days until Friday`;
+                }
+            }
+        }
+
+        // Special Friday particles
+        function createFridayParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                particle.style.width = '6px';
+                particle.style.height = '6px';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 5) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize the wheel chart
+        function initChart() {
+            const ctx = document.getElementById('wheelChart').getContext('2d');
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: names,
+                    datasets: [{
+                        data: [1, 1, 1, 1, 1], // Equal segments
+                        backgroundColor: colors,
+                        borderWidth: 3,
+                        borderColor: '#1a1a2e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 3
+                        }
+                    },
+                    cutout: '20%',
+                    rotation: 0,
+                    animation: {
+                        animateRotate: false
+                    }
+                }
+            });
+
+            // Add labels to segments
+            addLabelsToChart();
+        }
+
+        // Add name labels to the chart
+        function addLabelsToChart() {
+            // Register the plugin to draw labels
+            Chart.register({
+                id: 'labelPlugin',
+                afterDatasetsDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const centerX = chart.width / 2;
+                    const centerY = chart.height / 2;
+                    const radius = Math.min(centerX, centerY) * 0.6;
+
+                    ctx.save();
+
+                    names.forEach((name, index) => {
+                        // Calculate the center angle of each segment
+                        const angle = (index * 2 * Math.PI / names.length) - (Math.PI / 2) + (Math.PI / names.length);
+                        const x = centerX + Math.cos(angle) * radius;
+                        const y = centerY + Math.sin(angle) * radius;
+
+                        ctx.save();
+                        ctx.translate(x, y);
+
+                        // Rotate text if it's on the bottom half to keep it readable
+                        let textAngle = angle;
+                        if (angle > Math.PI / 2 && angle < 3 * Math.PI / 2) {
+                            textAngle = angle + Math.PI; // Flip 180 degrees for bottom segments
+                        }
+                        ctx.rotate(textAngle);
+
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 18px Arial'; // Increased font size
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                        ctx.shadowBlur = 6;
+                        ctx.shadowOffsetX = 2;
+                        ctx.shadowOffsetY = 2;
+                        ctx.fillText(name.toUpperCase(), 0, 0);
+
+                        ctx.restore();
+                    });
+
+                    ctx.restore();
+                }
+            });
+
+            chart.update('none');
+        }
+
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Spin the wheel
+        function spinWheel() {
+            if (isSpinning) return;
+
+            isSpinning = true;
+            document.getElementById('spinButton').disabled = true;
+
+            // Calculate spin
+            const spins = 5 + Math.floor(Math.random() * 5); // 5-10 full rotations
+            const finalAngle = Math.floor(Math.random() * 360);
+            const totalRotation = spins * 360 + finalAngle;
+
+            currentRotation += totalRotation;
+
+            // Animate the chart container
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Determine winner after spin
+            setTimeout(() => {
+                // Calculate where the wheel actually stopped
+                const normalizedAngle = (360 - (currentRotation % 360)) % 360;
+                const segmentAngle = 360 / names.length;
+                let winnerIndex = Math.floor(normalizedAngle / segmentAngle);
+                
+                // Ensure winnerIndex is within bounds
+                winnerIndex = winnerIndex % names.length;
+                
+                // Friday special: If it's Friday and we didn't land on Gossip, 
+                // give a chance to "nudge" it to Gossip if it's close
+                const dayName = document.getElementById('dayName').textContent.includes('FRIDAY');
+                const gossipIndex = names.indexOf('Gossip');
+                
+                if (dayName && winnerIndex !== gossipIndex && Math.random() < 0.4) {
+                    // Only "nudge" to Gossip if we're within 1 segment of it
+                    const distance = Math.min(
+                        Math.abs(winnerIndex - gossipIndex),
+                        names.length - Math.abs(winnerIndex - gossipIndex)
+                    );
+                    if (distance <= 1) {
+                        winnerIndex = gossipIndex;
+                        
+                        // Slightly adjust the wheel to point to Gossip
+                        const gossipAngle = gossipIndex * segmentAngle;
+                        const adjustment = gossipAngle - normalizedAngle;
+                        currentRotation += adjustment;
+                        chartContainer.style.transform = `rotate(${currentRotation}deg)`;
+                    }
+                }
+
+                showWinner(names[winnerIndex]);
+                isSpinning = false;
+                document.getElementById('spinButton').disabled = false;
+            }, 4000);
+        }
+
+        // Show winner
+        function showWinner(name) {
+            const winnerNameElement = document.getElementById('winnerName');
+            const winnerTitleElement = document.querySelector('.winner h2');
+            
+            // Special message for Gossip!
+            if (name === 'Gossip') {
+                winnerTitleElement.textContent = "IT'S GOSSIP TIME!";
+                winnerNameElement.textContent = "LETS DISCUSS ABOUT GOSSIPS!!!!!";
+                winnerNameElement.style.fontSize = '2.5rem';
+            } else {
+                winnerTitleElement.textContent = `${name}`;
+                winnerNameElement.textContent = "Are you ready to share your updates?";
+                winnerNameElement.style.fontSize = '1.5rem';
+            }
+            
+            document.getElementById('winner').classList.add('show');
+
+            // Update stats
+            updateStats(name);
+        }
+
+        // Close winner modal
+        function closeWinner() {
+            document.getElementById('winner').classList.remove('show');
+        }
+
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            // Initialize all features
+            setupDateDisplay();
+            loadStats();
+            displayStats();
+            createParticles();
+            initChart();
+
+            // Event listeners
+            document.getElementById('spinButton').addEventListener('click', spinWheel);
+            document.getElementById('closeWinner').addEventListener('click', closeWinner);
+
+            // Add hover effects to chart container
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.addEventListener('mouseenter', () => {
+                if (!isSpinning) {
+                    chartContainer.style.transform = `rotate(${currentRotation}deg) scale(1.02)`;
+                }
+            });
+
+            chartContainer.addEventListener('mouseleave', () => {
+                if (!isSpinning) {
+                    chartContainer.style.transform = `rotate(${currentRotation}deg) scale(1)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
