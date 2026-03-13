@@ -60,19 +60,29 @@
             z-index: 10;
         }
 
-        /* Team title */
+        /* Fixed top header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 3rem 0 1.2rem;
+            z-index: 40;
+            background: linear-gradient(180deg, rgba(10,10,30,0.78) 0%, transparent 100%);
+            backdrop-filter: blur(2px);
+        }
+
         .team-title {
-            font-size: 4rem;
+            font-size: 2.4rem;
             font-weight: 700;
             background: linear-gradient(135deg, #ff7f50, #ff6347, #ff4500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
-            margin-top: -2rem;
-            text-shadow: 0 0 40px rgba(255, 127, 80, 0.5);
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             animation: glow 2s ease-in-out infinite alternate;
+            margin: 0 0 3rem;
         }
 
         @keyframes glow {
@@ -81,21 +91,20 @@
         }
 
         .day-name {
-            font-size: 2rem;
+            font-size: 1.9rem;
             font-weight: 700;
             background: linear-gradient(135deg, #ff7f50, #ff4500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.5rem;
-            margin-top: -0.5rem;
+            margin: 0;
         }
 
         .countdown {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.65);
             font-weight: 400;
-            margin-bottom: 1.5rem;
+            margin: 0.2rem 0 0;
             font-style: italic;
         }
 
@@ -132,12 +141,12 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 1rem;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 127, 80, 0.3);
-            min-width: 200px;
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 1rem 1.1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 127, 80, 0.25);
+            width: 250px;
+            backdrop-filter: blur(12px);
             z-index: 50;
         }
 
@@ -183,6 +192,299 @@
         .history-count {
             color: #ff7f50;
             font-weight: 600;
+        }
+
+        /* Expedites panel */
+        .expedites-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 1rem 1.1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 127, 80, 0.25);
+            width: 250px;
+            backdrop-filter: blur(12px);
+            z-index: 50;
+        }
+
+        .expedites-title {
+            color: #ff7f50;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .expedites-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.65rem;
+            border-bottom: 1px solid rgba(255, 127, 80, 0.2);
+        }
+
+        .expedites-total-num {
+            color: #ff7f50;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Period items */
+        .period-item {
+            padding: 0.45rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .period-item:last-child { border-bottom: none; }
+
+        .period-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .period-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            flex: 1;
+        }
+
+        .period-label.muted { color: rgba(255, 255, 255, 0.28); }
+
+        .badge-current {
+            background: linear-gradient(135deg, #ff7f50, #ff4500);
+            color: white;
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-past {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.5rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .period-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .period-count {
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 22px;
+            text-align: center;
+            color: #ff7f50;
+        }
+
+        .period-count.on-track  { color: #4ade80; }
+        .period-count.over-goal { color: #f87171; }
+        .period-count.muted     { color: rgba(255,255,255,0.25); }
+
+        .q-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 127, 80, 0.7);
+            background: transparent;
+            color: #ff7f50;
+            font-size: 0.95rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .q-btn:hover { background: #ff7f50; color: white; border-color: #ff7f50; }
+        .q-btn:active { transform: scale(0.88); }
+
+        .q-edit-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 127, 80, 0.35);
+            color: rgba(255, 127, 80, 0.7);
+            font-size: 0.6rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .q-edit-btn:hover {
+            background: rgba(255, 127, 80, 0.15);
+            color: #ff7f50;
+            border-color: rgba(255, 127, 80, 0.6);
+        }
+
+        /* Goal bar */
+        .goal-bar-wrap {
+            margin-top: 5px;
+        }
+
+        .goal-bar-track {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .goal-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.35s ease;
+        }
+
+        .goal-bar-fill.on-track  { background: #4ade80; }
+        .goal-bar-fill.over-goal { background: #f87171; }
+        .goal-bar-fill.projected { background: rgba(255,255,255,0.2); }
+
+        .goal-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3px;
+            font-size: 0.62rem;
+            letter-spacing: 0.2px;
+        }
+
+        .goal-text .gt-label { color: rgba(255,255,255,0.35); }
+        .goal-text .gt-value { font-weight: 600; }
+        .goal-text.on-track  .gt-value { color: #4ade80; }
+        .goal-text.over-goal .gt-value { color: #f87171; }
+        .goal-text.projected .gt-value { color: rgba(255,255,255,0.28); }
+
+        /* Edit modal */
+        .edit-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .edit-modal-overlay.open {
+            display: flex;
+        }
+
+        .edit-modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 127, 80, 0.5);
+            border-radius: 16px;
+            padding: 2rem;
+            min-width: 280px;
+            box-shadow: 0 0 50px rgba(255, 127, 80, 0.3);
+            text-align: center;
+        }
+
+        .edit-modal h3 {
+            color: #ff7f50;
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+            letter-spacing: 1px;
+        }
+
+        .edit-modal p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.78rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .edit-modal-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-q-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ff7f50;
+            background: transparent;
+            color: #ff7f50;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-q-btn:hover {
+            background: #ff7f50;
+            color: white;
+        }
+
+        .modal-count-display {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            min-width: 60px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-save-btn {
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, #ff7f50, #ff4500);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .modal-save-btn:hover {
+            box-shadow: 0 0 15px rgba(255, 127, 80, 0.5);
+        }
+
+        .modal-cancel-btn {
+            padding: 0.5rem 1.5rem;
+            background: transparent;
+            color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .modal-cancel-btn:hover {
+            border-color: rgba(255,255,255,0.5);
+            color: white;
         }
 
         /* Wheel container */
@@ -247,7 +549,7 @@
 
         /* Spin button */
         .spin-button {
-            margin-bottom: 2rem;
+            margin-bottom: 3.5rem;
             padding: 1rem 2.5rem;
             font-size: 1.1rem;
             font-weight: 600;
@@ -379,6 +681,33 @@
     <!-- Animated particles background -->
     <div class="particles" id="particles"></div>
 
+    <!-- Expedites Panel -->
+    <div class="expedites-panel" id="expeditesPanel">
+        <div class="expedites-title">🚨 Expedites</div>
+        <div class="expedites-total">
+            <span>Total to date</span>
+            <span class="expedites-total-num" id="expeditesTotal">0</span>
+        </div>
+        <div id="quartersContainer"></div>
+    </div>
+
+    <!-- Edit Quarter Modal -->
+    <div class="edit-modal-overlay" id="editModalOverlay">
+        <div class="edit-modal">
+            <h3 id="editModalTitle">Edit Quarter</h3>
+            <p>Adjust expedite count for this quarter</p>
+            <div class="edit-modal-controls">
+                <button class="modal-q-btn" id="modalDecBtn">−</button>
+                <div class="modal-count-display" id="modalCountDisplay">0</div>
+                <button class="modal-q-btn" id="modalIncBtn">+</button>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-cancel-btn" id="modalCancelBtn">Cancel</button>
+                <button class="modal-save-btn" id="modalSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Always Visible Stats Panel -->
     <div class="stats-panel-fixed">
         <div class="stats-title">Team Stats</div>
@@ -390,11 +719,13 @@
         </div>
     </div>
 
-    <div class="container">
-        <h1 class="team-title">FOXES TEAM</h1>
+    <header class="site-header">
+        <h1 class="team-title">FOXES TEAM DAILY MEETING</h1>
         <div class="day-name" id="dayName">IT'S MONDAY</div>
         <div class="countdown" id="countdown">4 days until Friday</div>
+    </header>
 
+    <div class="container">
         <button class="spin-button" id="spinButton">SPIN THE WHEEL</button>
 
         <div class="wheel-container">
@@ -729,6 +1060,159 @@
             document.getElementById('winner').classList.remove('show');
         }
 
+        // ── Expedites tracker ──────────────────────────────────────────────
+
+        // Goal for a period = floor(previous period count × 70%)
+        function getPeriodGoal(year, p, data) {
+            const prevKey = p === 1 ? periodKey(year - 1, 4) : periodKey(year, p - 1);
+            if (!(prevKey in data)) return null;
+            return Math.floor((data[prevKey] || 0) * 0.7);
+        }
+
+        function goalBar(goal, count, state) {
+            if (goal === null) return '';
+            if (state === 'future') {
+                return '';
+            }
+            const met = count <= goal;
+            const cls = met ? 'on-track' : 'over-goal';
+            const pct = goal === 0 ? 100 : Math.min(Math.round(count / goal * 100), 100);
+            const detail = met ? `✓ on track` : `✗ +${count - goal} over`;
+            return `
+                <div class="goal-bar-wrap">
+                    <div class="goal-bar-track"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
+                    <div class="goal-text ${cls}"><span class="gt-label">${detail}</span><span class="gt-value">≤ ${goal}</span></div>
+                </div>`;
+        }
+
+        // P1 = Dec–Feb, P2 = Mar–May, P3 = Jul–Aug (Jun included), P4 = Sep–Nov
+
+        function getCurrentPeriod() {
+            const now = new Date();
+            const month = now.getMonth() + 1; // 1–12
+            const year = now.getFullYear();
+            if (month === 12) return { year: year + 1, p: 1 }; // Dec belongs to next year's P1
+            if (month <= 2)   return { year, p: 1 };  // Jan–Feb
+            if (month <= 5)   return { year, p: 2 };  // Mar–May
+            if (month <= 8)   return { year, p: 3 };  // Jun–Aug
+            return              { year, p: 4 };        // Sep–Nov
+        }
+
+        function periodKey(year, p) { return `${year}-P${p}`; }
+
+        function loadExpedites() {
+            const saved = localStorage.getItem('foxesExpedites');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        function saveExpedites(data) {
+            localStorage.setItem('foxesExpedites', JSON.stringify(data));
+        }
+
+        function renderExpedites() {
+            const data = loadExpedites();
+            const { year, p: currentP } = getCurrentPeriod();
+            const container = document.getElementById('quartersContainer');
+            container.innerHTML = '';
+
+            let total = 0;
+            // Sum all periods up to and including current
+            for (let pi = 1; pi <= currentP; pi++) {
+                total += data[periodKey(year, pi)] || 0;
+            }
+            // Also sum previous fiscal years if any data exists
+            for (const key of Object.keys(data)) {
+                const ky = parseInt(key.split('-P')[0]);
+                if (ky < year) total += data[key] || 0;
+            }
+
+            document.getElementById('expeditesTotal').textContent = total;
+
+            for (let pi = 1; pi <= 4; pi++) {
+                const key = periodKey(year, pi);
+                const count = data[key] || 0;
+                const goal = getPeriodGoal(year, pi, data);
+                const item = document.createElement('div');
+                item.className = 'period-item';
+
+                if (pi === currentP) {
+                    const met = goal !== null && count <= goal;
+                    const over = goal !== null && count > goal;
+                    const countCls = met ? 'on-track' : over ? 'over-goal' : '';
+                    item.innerHTML = `
+                        <div class="period-row">
+                            <div class="period-label">P${pi} <span class="badge-current">Current</span></div>
+                            <div class="period-right">
+                                <button class="q-btn" id="q-dec-${pi}">−</button>
+                                <span class="period-count ${countCls}">${count}</span>
+                                <button class="q-btn" id="q-inc-${pi}">+</button>
+                            </div>
+                        </div>
+                        ${goalBar(goal, count, 'current')}`;
+                    container.appendChild(item);
+
+                    item.querySelector(`#q-inc-${pi}`).addEventListener('click', () => {
+                        const d = loadExpedites(); d[key] = (d[key] || 0) + 1;
+                        saveExpedites(d); renderExpedites();
+                    });
+                    item.querySelector(`#q-dec-${pi}`).addEventListener('click', () => {
+                        const d = loadExpedites(); d[key] = Math.max(0, (d[key] || 0) - 1);
+                        saveExpedites(d); renderExpedites();
+                    });
+
+                } else if (pi < currentP) {
+                    const met = goal !== null && count <= goal;
+                    const over = goal !== null && count > goal;
+                    const countCls = met ? 'on-track' : over ? 'over-goal' : '';
+                    item.innerHTML = `
+                        <div class="period-row">
+                            <div class="period-label">P${pi} <span class="badge-past">Past</span></div>
+                            <div class="period-right">
+                                <span class="period-count ${countCls}">${count}</span>
+                                <button class="q-edit-btn" data-key="${key}" data-label="P${pi}">Edit</button>
+                            </div>
+                        </div>
+                        ${goalBar(goal, count, 'past')}`;
+                    container.appendChild(item);
+
+                    item.querySelector('.q-edit-btn').addEventListener('click', (e) => {
+                        openEditModal(e.target.dataset.key, e.target.dataset.label);
+                    });
+
+                } else {
+                    item.innerHTML = `
+                        <div class="period-row">
+                            <div class="period-label muted">P${pi}</div>
+                            <div class="period-right">
+                                <span class="period-count muted">—</span>
+                            </div>
+                        </div>
+                        ${goalBar(goal, count, 'future')}`;
+                    container.appendChild(item);
+                }
+            }
+        }
+
+        // Modal state
+        let modalKey = null;
+        let modalTempCount = 0;
+
+        function openEditModal(key, label) {
+            const data = loadExpedites();
+            modalKey = key;
+            modalTempCount = data[key] || 0;
+            document.getElementById('editModalTitle').textContent = `Edit ${label}`;
+            document.getElementById('modalCountDisplay').textContent = modalTempCount;
+            document.getElementById('editModalOverlay').classList.add('open');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModalOverlay').classList.remove('open');
+            modalKey = null;
+        }
+
+        // ── End expedites tracker ───────────────────────────────────────────
+
         // Initialize everything when page loads
         window.addEventListener('load', () => {
             // Initialize all features
@@ -737,6 +1221,30 @@
             displayStats();
             createParticles();
             initChart();
+
+            // Expedites
+            renderExpedites();
+            document.getElementById('modalIncBtn').addEventListener('click', () => {
+                modalTempCount++;
+                document.getElementById('modalCountDisplay').textContent = modalTempCount;
+            });
+            document.getElementById('modalDecBtn').addEventListener('click', () => {
+                modalTempCount = Math.max(0, modalTempCount - 1);
+                document.getElementById('modalCountDisplay').textContent = modalTempCount;
+            });
+            document.getElementById('modalSaveBtn').addEventListener('click', () => {
+                if (modalKey !== null) {
+                    const d = loadExpedites();
+                    d[modalKey] = modalTempCount;
+                    saveExpedites(d);
+                    renderExpedites();
+                }
+                closeEditModal();
+            });
+            document.getElementById('modalCancelBtn').addEventListener('click', closeEditModal);
+            document.getElementById('editModalOverlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeEditModal();
+            });
 
             // Event listeners
             document.getElementById('spinButton').addEventListener('click', spinWheel);
