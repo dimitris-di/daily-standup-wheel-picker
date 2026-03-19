@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fox favicon">
+  <defs>
+    <linearGradient id="bg" x1="12" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1a1a2e" />
+      <stop offset="1" stop-color="#0f3460" />
+    </linearGradient>
+    <linearGradient id="fox" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffb347" />
+      <stop offset="0.55" stop-color="#ff7f50" />
+      <stop offset="1" stop-color="#ff4500" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)" />
+  <path d="M16 20L23 10L31 18L32 16L33 18L41 10L48 20L44 42L32 52L20 42L16 20Z" fill="url(#fox)" />
+  <path d="M24 24L32 20L40 24L38 38L32 44L26 38L24 24Z" fill="#fff4ea" />
+  <path d="M20 18L23 10L27 20Z" fill="#ffcf99" />
+  <path d="M44 18L41 10L37 20Z" fill="#ffcf99" />
+  <circle cx="26" cy="29" r="2.2" fill="#1a1a2e" />
+  <circle cx="38" cy="29" r="2.2" fill="#1a1a2e" />
+  <path d="M31 33h2l1.7 2L32 38l-2.7-3Z" fill="#1a1a2e" />
+</svg>
