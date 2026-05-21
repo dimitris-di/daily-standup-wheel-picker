@@ -1,0 +1,12 @@
+{
+  "name": "daily-standup-wheel-picker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static daily standup wheel picker.",
+  "scripts": {
+    "test": "playwright test smoke.spec.js --browser=chromium --reporter=list"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

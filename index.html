@@ -25,7 +25,7 @@
                         'border-c':   '#26262F',
                         text:         '#F5F5F4',
                         'text-muted': '#A8A29E',
-                        'text-dim':   '#57534E',
+                        'text-dim':   '#908A85',
                         brand:        '#FF6A3D',
                         'brand-soft': '#FFB199',
                         'brand-deep': '#C4421F',
@@ -178,7 +178,7 @@
 
         .pip-base {
             background: #1F1F27;
-            color: #57534E;
+            color: #908A85;
         }
         .pip-done {
             background: color-mix(in srgb, var(--accent) 28%, transparent);
@@ -203,7 +203,10 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .motion-only { animation: none !important; }
+            .motion-only,
+            .animate-settle { animation: none !important; }
+            .wheel-transition { transition: none !important; }
+            .transition-\[width\] { transition: none !important; }
         }
     </style>
 </head>
@@ -238,13 +241,14 @@
         <header class="md:col-span-3 flex items-center justify-between gap-3">
             <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">FOXES DAILY WHEEL</div>
             <button id="soundToggle"
+                    type="button"
                     class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg shrink-0"
-                    aria-pressed="false" title="Toggle Friday chime">🔕</button>
+                    aria-pressed="false" aria-label="Enable chime" title="Toggle chime">🔕</button>
         </header>
 
         <!-- ROW 2 col 1: Hero (date + day name + pips + countdown) -->
         <section class="md:col-start-1 md:row-start-2 md:self-start text-center md:text-left flex flex-col items-center md:items-start gap-2 pt-2 md:pt-3">
-            <div id="dateLine" class="sr-only">
+            <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
                 Thu · 21 May 2026
             </div>
             <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
@@ -288,6 +292,7 @@
             </div>
 
             <button id="spinButton"
+                    type="button"
                     class="spin-btn text-white font-bold text-sm tracking-[0.14em] uppercase
                            px-8 sm:px-10 py-3 sm:py-3.5 rounded-2xl min-w-[180px]
                            focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-bg
@@ -327,17 +332,21 @@
             <p class="text-text-dim text-sm mb-5">Adjust expedite count for this quarter</p>
             <div class="flex items-center justify-center gap-5 mb-6">
                 <button id="modalDecBtn"
+                        type="button"
                         class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                         aria-label="Decrease">−</button>
                 <div id="modalCountDisplay" class="text-text text-5xl font-bold leading-none tabular-nums min-w-[80px]">0</div>
                 <button id="modalIncBtn"
+                        type="button"
                         class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                         aria-label="Increase">+</button>
             </div>
             <div class="flex gap-2.5 justify-center">
                 <button id="modalCancelBtn"
+                        type="button"
                         class="px-5 py-2 bg-transparent text-text-muted border border-border-c rounded-xl text-sm hover:text-text hover:border-text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Cancel</button>
                 <button id="modalSaveBtn"
+                        type="button"
                         class="px-5 py-2 bg-brand text-white border-0 rounded-xl text-sm font-semibold hover:brightness-110 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Save</button>
             </div>
         </div>
@@ -353,6 +362,7 @@
             <div id="winnerName" class="text-brand font-black uppercase leading-[0.9] tracking-[-0.05em] text-5xl sm:text-6xl md:text-7xl mb-3"></div>
             <div id="winnerSub" class="text-text-muted text-sm sm:text-base mb-6">Are you ready to share your updates?</div>
             <button id="closeWinner"
+                    type="button"
                     class="spin-btn px-8 py-3.5 min-w-[190px] rounded-2xl text-white text-sm font-bold tracking-[0.14em] uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
                 Start Standup
             </button>
@@ -375,12 +385,60 @@
 
         let pickStats = { currentStreak: { person: null, count: 0 }, totalPicks: {} };
 
-        function loadStats() {
-            const saved = localStorage.getItem('foxesWheelStats');
-            if (saved) pickStats = JSON.parse(saved);
-            else names.forEach(n => pickStats.totalPicks[n] = 0);
+        function readStorageValue(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                return null;
+            }
         }
-        function saveStats() { localStorage.setItem('foxesWheelStats', JSON.stringify(pickStats)); }
+        function writeStorageValue(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {}
+        }
+        function readJsonStorage(key, fallback) {
+            const saved = readStorageValue(key);
+            if (!saved) return fallback;
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return fallback;
+            }
+        }
+        function writeJsonStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {}
+        }
+        function defaultStats() {
+            const totalPicks = {};
+            names.forEach(n => totalPicks[n] = 0);
+            return { currentStreak: { person: null, count: 0 }, totalPicks };
+        }
+        function normalizeCount(value) {
+            const count = Number(value);
+            return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+        }
+        function normalizeStats(value) {
+            const next = defaultStats();
+            if (!value || typeof value !== 'object') return next;
+            if (value.totalPicks && typeof value.totalPicks === 'object') {
+                names.forEach(name => next.totalPicks[name] = normalizeCount(value.totalPicks[name]));
+            }
+            const streak = value.currentStreak;
+            if (streak && names.includes(streak.person)) {
+                next.currentStreak = {
+                    person: streak.person,
+                    count: Math.max(1, normalizeCount(streak.count))
+                };
+            }
+            return next;
+        }
+        function loadStats() {
+            pickStats = normalizeStats(readJsonStorage('foxesWheelStats', null));
+        }
+        function saveStats() { writeJsonStorage('foxesWheelStats', normalizeStats(pickStats)); }
         function updateStats(winner) {
             pickStats.totalPicks[winner] = (pickStats.totalPicks[winner] || 0) + 1;
             if (pickStats.currentStreak.person === winner) pickStats.currentStreak.count++;
@@ -415,16 +473,25 @@
 
         function setupDateDisplay() {
             const now = new Date();
+            const isPreview = new URLSearchParams(location.search).has('day');
             const dayIdx = getDayIndex();
             const longName = dayLongNames[dayIdx];
             document.body.dataset.day = String(dayIdx);
 
-            const fullDate = `${dayShortNames[now.getDay()]} · ${now.getDate()} ${now.toLocaleDateString('en-US', { month: 'short' })} ${now.getFullYear()}`;
+            const fullDate = isPreview
+                ? `Preview · ${longName}`
+                : `${dayShortNames[now.getDay()]} · ${now.getDate()} ${now.toLocaleDateString('en-US', { month: 'short' })} ${now.getFullYear()}`;
             document.getElementById('dateLine').textContent = fullDate;
 
             const dayNameEl   = document.getElementById('dayName');
             const countdownEl = document.getElementById('countdown');
             const marqueeEl   = document.getElementById('marquee');
+            const weekStripEl = document.getElementById('weekStrip');
+            if (dayIdx >= 1 && dayIdx <= 5) {
+                weekStripEl.setAttribute('aria-valuenow', String(dayIdx));
+            } else {
+                weekStripEl.removeAttribute('aria-valuenow');
+            }
 
             if (dayIdx === 5) {
                 dayNameEl.innerHTML = `<span class="accent-text">Friday</span> 🎉`;
@@ -570,7 +637,8 @@
         function spinWheel() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById('spinButton').disabled = true;
+            const spinButton = document.getElementById('spinButton');
+            spinButton.disabled = true;
 
             const n = names.length;
             const segmentAngle = 360 / n;
@@ -596,15 +664,19 @@
 
             document.getElementById('chartContainer').style.transform = `rotate(${currentRotation}deg)`;
 
+            const spinDuration = reduceMotion ? 80 : 4600;
             setTimeout(() => {
-                showWinner(names[winnerIndex]);
-                isSpinning = false;
-                document.getElementById('spinButton').disabled = false;
-            }, 4600);
+                try {
+                    showWinner(names[winnerIndex]);
+                } finally {
+                    isSpinning = false;
+                    spinButton.disabled = false;
+                }
+            }, spinDuration);
         }
 
         const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let soundOn = localStorage.getItem('foxesSound') === 'true';
+        let soundOn = readStorageValue('foxesSound') === 'true';
 
         const dayPalettes = {
             0: ['#A78BFA', '#C4B5FD', '#7C3AED', '#FFFFFF'],
@@ -649,9 +721,7 @@
             }
             document.getElementById('liveWinner').textContent = `Today's speaker is ${name}`;
             const w = document.getElementById('winner');
-            w.classList.remove('hidden');
-            w.classList.add('flex');
-            setTimeout(() => document.getElementById('closeWinner').focus(), 50);
+            openDialog(w, document.getElementById('closeWinner'));
 
             fireConfetti('win');
             if (soundOn) playChime();
@@ -659,9 +729,68 @@
         }
         function closeWinner() {
             const w = document.getElementById('winner');
-            w.classList.add('hidden');
-            w.classList.remove('flex');
-            document.getElementById('spinButton').focus();
+            closeDialog(w, document.getElementById('spinButton'));
+        }
+
+        let activeDialog = null;
+        let lastFocusedBeforeDialog = null;
+        const focusableSelector = [
+            'button:not([disabled])',
+            '[href]',
+            'input:not([disabled])',
+            'select:not([disabled])',
+            'textarea:not([disabled])',
+            '[tabindex]:not([tabindex="-1"])'
+        ].join(',');
+        function getFocusableElements(container) {
+            return Array.from(container.querySelectorAll(focusableSelector))
+                .filter(el => el.offsetParent !== null);
+        }
+        function setPageInert(isInert) {
+            const app = document.querySelector('.relative.z-10');
+            if (!app) return;
+            if (isInert) {
+                app.setAttribute('inert', '');
+                app.setAttribute('aria-hidden', 'true');
+            } else {
+                app.removeAttribute('inert');
+                app.removeAttribute('aria-hidden');
+            }
+        }
+        function openDialog(dialog, focusTarget) {
+            lastFocusedBeforeDialog = document.activeElement;
+            activeDialog = dialog;
+            setPageInert(true);
+            dialog.classList.remove('hidden');
+            dialog.classList.add('flex');
+            setTimeout(() => (focusTarget || getFocusableElements(dialog)[0] || dialog).focus(), 50);
+        }
+        function closeDialog(dialog, fallbackFocus) {
+            dialog.classList.add('hidden');
+            dialog.classList.remove('flex');
+            if (activeDialog === dialog) activeDialog = null;
+            setPageInert(false);
+            const target = fallbackFocus || lastFocusedBeforeDialog;
+            lastFocusedBeforeDialog = null;
+            if (target && typeof target.focus === 'function') target.focus();
+        }
+        function trapDialogFocus(event) {
+            if (!activeDialog || event.key !== 'Tab') return;
+            const focusable = getFocusableElements(activeDialog);
+            if (!focusable.length) {
+                event.preventDefault();
+                activeDialog.focus();
+                return;
+            }
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         }
 
         function fridayWelcome() {
@@ -725,11 +854,18 @@
             return { year, p: 4 };
         }
         function periodKey(year, p) { return `${year}-P${p}`; }
-        function loadExpedites() {
-            const saved = localStorage.getItem('foxesExpedites');
-            return saved ? JSON.parse(saved) : {};
+        function normalizeExpedites(value) {
+            const next = {};
+            if (!value || typeof value !== 'object') return next;
+            Object.entries(value).forEach(([key, count]) => {
+                if (/^\d{4}-P[1-4]$/.test(key)) next[key] = normalizeCount(count);
+            });
+            return next;
         }
-        function saveExpedites(data) { localStorage.setItem('foxesExpedites', JSON.stringify(data)); }
+        function loadExpedites() {
+            return normalizeExpedites(readJsonStorage('foxesExpedites', {}));
+        }
+        function saveExpedites(data) { writeJsonStorage('foxesExpedites', normalizeExpedites(data)); }
 
         function periodCountColor(count, goal) {
             if (goal === null) return 'text-brand';
@@ -765,9 +901,11 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <button id="q-dec-${pi}" aria-label="Decrease P${pi}"
+                                        type="button"
                                         class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">−</button>
                                 <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
                                 <button id="q-inc-${pi}" aria-label="Increase P${pi}"
+                                        type="button"
                                         class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">+</button>
                             </div>
                         </div>
@@ -791,6 +929,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
                                 <button data-key="${key}" data-label="P${pi}"
+                                        type="button"
                                         class="q-edit-btn bg-transparent border border-border-c text-text-muted text-[0.62rem] font-semibold tracking-wider px-2.5 py-1 rounded-lg uppercase hover:bg-surface-2 hover:text-brand hover:border-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Edit</button>
                             </div>
                         </div>
@@ -821,14 +960,11 @@
             document.getElementById('editModalTitle').textContent = `Edit ${label}`;
             document.getElementById('modalCountDisplay').textContent = modalTempCount;
             const overlay = document.getElementById('editModalOverlay');
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-            setTimeout(() => document.getElementById('modalSaveBtn').focus(), 50);
+            openDialog(overlay, document.getElementById('modalSaveBtn'));
         }
         function closeEditModal() {
             const overlay = document.getElementById('editModalOverlay');
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
+            closeDialog(overlay);
             modalKey = null;
         }
 
@@ -842,13 +978,14 @@
 
             const soundBtn = document.getElementById('soundToggle');
             const refreshSoundUI = () => {
-                soundBtn.textContent = soundOn ? '🔔' : '🔕';
+                soundBtn.innerHTML = `<span aria-hidden="true">${soundOn ? '🔔' : '🔕'}</span>`;
                 soundBtn.setAttribute('aria-pressed', String(soundOn));
+                soundBtn.setAttribute('aria-label', soundOn ? 'Disable chime' : 'Enable chime');
             };
             refreshSoundUI();
             soundBtn.addEventListener('click', () => {
                 soundOn = !soundOn;
-                localStorage.setItem('foxesSound', soundOn);
+                writeStorageValue('foxesSound', String(soundOn));
                 refreshSoundUI();
                 if (soundOn) playChime();
             });
@@ -879,6 +1016,7 @@
             document.getElementById('closeWinner').addEventListener('click', closeWinner);
 
             document.addEventListener('keydown', (e) => {
+                trapDialogFocus(e);
                 if (e.key === 'Escape') {
                     if (!document.getElementById('editModalOverlay').classList.contains('hidden')) closeEditModal();
                     if (!document.getElementById('winner').classList.contains('hidden')) closeWinner();
@@ -889,8 +1027,10 @@
                 }
             });
 
-            const ro = new ResizeObserver(() => chart && chart.update('none'));
-            ro.observe(document.getElementById('wheelChart'));
+            if ('ResizeObserver' in window) {
+                const ro = new ResizeObserver(() => chart && chart.update('none'));
+                ro.observe(document.getElementById('wheelChart'));
+            }
 
             // Layout sizing: the wheel is the flexible piece. Measure the
             // actual stage slot and reserve room for the fixed Spin button.
@@ -908,7 +1048,9 @@
                     const viewportPad = matchMedia('(min-width: 768px)').matches ? 14 : 18;
                     const maxSize = matchMedia('(min-width: 1024px)').matches ? 460 : 420;
                     const availableHeight = window.innerHeight - stageRect.top - btnRect.height - gap - viewportPad;
-                    const availableWidth = stageRect.width;
+                    const availableWidth = matchMedia('(min-width: 768px)').matches
+                        ? stageRect.width
+                        : stageRect.width - 22;
                     const size = Math.floor(Math.max(180, Math.min(maxSize, availableHeight, availableWidth)));
                     wheel.style.setProperty('--wheel-size', `${size}px`);
                     if (chart) chart.update('none');
@@ -940,6 +1082,17 @@
             if (document.fonts && document.fonts.ready) {
                 document.fonts.ready.then(fitWheelToViewport);
             }
+            function scheduleCalendarRefresh() {
+                const now = new Date();
+                const nextMidnight = new Date(now);
+                nextMidnight.setHours(24, 0, 1, 0);
+                setTimeout(() => {
+                    setupDateDisplay();
+                    renderExpedites();
+                    scheduleCalendarRefresh();
+                }, nextMidnight - now);
+            }
+            scheduleCalendarRefresh();
         });
     </script>
 </body>
