@@ -163,12 +163,10 @@
         }
     </style>
 </head>
-<body data-day="1" class="bg-bg text-text font-sans antialiased min-h-screen overflow-x-hidden">
+<body data-day="1" class="relative bg-bg text-text font-sans antialiased min-h-screen overflow-x-hidden">
 
-    <div class="friday-aurora pointer-events-none fixed inset-0 z-0 opacity-0 transition-opacity duration-1000 motion-only" aria-hidden="true"
-         style="--tw-bg-opacity: 1;"></div>
+    <div class="friday-aurora pointer-events-none fixed inset-0 z-0 opacity-0 transition-opacity duration-1000 motion-only" aria-hidden="true"></div>
     <script>
-        // Only animate the aurora when on Friday and motion is allowed.
         if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('.friday-aurora').classList.add('motion-safe:animate-aurora');
@@ -176,18 +174,20 @@
         }
     </script>
 
-    <div class="relative z-10 mx-auto w-full max-w-[1400px] min-h-screen flex flex-col gap-3 sm:gap-4 lg:gap-5 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5">
+    <!-- Topbar: wordmark left, sound toggle right (in flow, always visible) -->
+    <header class="relative z-30 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">Foxes · Daily</div>
+        <button id="soundToggle"
+                class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg shrink-0"
+                aria-pressed="false" title="Toggle Friday chime">🔕</button>
+    </header>
 
-        <!-- Topbar -->
-        <header class="flex items-center justify-between gap-3">
-            <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">Foxes · Daily</div>
-            <button id="soundToggle"
-                    class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                    aria-pressed="false" title="Toggle Friday chime">🔕</button>
-        </header>
+    <!-- Main: hero + wheel + spin button, perfectly centered in the viewport. -->
+    <main class="relative z-10 flex flex-col items-center justify-center gap-4 sm:gap-5 px-4 pb-8 pt-2 lg:pt-4"
+          style="min-height: calc(100vh - 76px);">
 
-        <!-- Hero -->
-        <section class="text-center flex flex-col items-center gap-1.5 sm:gap-2">
+        <!-- Hero (centered horizontally) -->
+        <section class="text-center flex flex-col items-center gap-1.5 sm:gap-2 w-full max-w-[640px]">
             <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
                 Thu · 21 May 2026
             </div>
@@ -207,64 +207,58 @@
                 Weekend in 4 days
             </div>
             <div id="marquee" class="marquee-mask hidden w-full max-w-[640px] overflow-hidden whitespace-nowrap" aria-hidden="true">
-                <span class="inline-block pl-full font-bold text-xs tracking-[0.32em] uppercase text-brand motion-only animate-marquee" style="padding-left:100%;">
+                <span class="inline-block font-bold text-xs tracking-[0.32em] uppercase text-brand motion-only animate-marquee" style="padding-left:100%;">
                     IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊
                 </span>
             </div>
         </section>
 
-        <!-- Play area: wheel + rail -->
-        <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 lg:gap-6 items-start flex-1">
-
-            <!-- Wheel card -->
-            <div class="flex flex-col items-center gap-4 sm:gap-5 pt-1 sm:pt-2 min-w-0">
-                <div class="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[400px] xl:max-w-[440px] aspect-square"
-                     style="max-height: min(58vh, 440px);">
-                    <!-- Pointer -->
-                    <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
-                        <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
-                            <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
-                        </svg>
-                    </div>
-                    <!-- Wheel chart -->
-                    <div id="chartContainer" class="wheel-rim wheel-transition relative w-full h-full rounded-full overflow-hidden">
-                        <canvas id="wheelChart" class="!w-full !h-full"></canvas>
-                    </div>
-                    <!-- Center pin -->
-                    <div class="center-pin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
-                                w-[18%] aspect-square rounded-full flex items-center justify-center text-2xl sm:text-3xl"
-                         aria-hidden="true">🦊</div>
-                </div>
-
-                <button id="spinButton"
-                        class="spin-btn text-white font-bold text-sm tracking-[0.14em] uppercase
-                               px-8 sm:px-10 py-3 sm:py-3.5 rounded-2xl min-w-[180px]
-                               focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-bg
-                               disabled:opacity-50 disabled:cursor-not-allowed">
-                    Spin
-                </button>
+        <!-- Wheel -->
+        <div id="wheelOuter"
+             class="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[400px] xl:max-w-[440px] aspect-square"
+             style="max-height: min(58vh, 440px);">
+            <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
+                <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
+                    <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
+                </svg>
             </div>
+            <div id="chartContainer" class="wheel-rim wheel-transition relative w-full h-full rounded-full overflow-hidden">
+                <canvas id="wheelChart" class="!w-full !h-full"></canvas>
+            </div>
+            <div class="center-pin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
+                        w-[18%] aspect-square rounded-full flex items-center justify-center text-2xl sm:text-3xl"
+                 aria-hidden="true">🦊</div>
+        </div>
 
-            <!-- Rail -->
-            <aside class="flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 min-w-0">
-                <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
-                    <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
-                    <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 border-b border-border-c">No picks yet</div>
-                    <div id="pickHistory" class="text-sm"></div>
-                </section>
-                <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
-                    <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">🚨 Expedites</h2>
-                    <div class="flex justify-between items-baseline pb-3 mb-3 border-b border-border-c text-text-muted text-xs">
-                        <span>Total to date</span>
-                        <span id="expeditesTotal" class="text-brand font-bold text-lg tabular-nums">0</span>
-                    </div>
-                    <div id="quartersContainer"></div>
-                </section>
-            </aside>
+        <!-- Spin button -->
+        <button id="spinButton"
+                class="spin-btn text-white font-bold text-sm tracking-[0.14em] uppercase
+                       px-8 sm:px-10 py-3 sm:py-3.5 rounded-2xl min-w-[180px]
+                       focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-bg
+                       disabled:opacity-50 disabled:cursor-not-allowed">
+            Spin
+        </button>
+    </main>
+
+    <!-- Rail: in flow below main on mobile/tablet, absolute top-right on lg+ -->
+    <aside class="relative z-20 flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 px-4 sm:px-6 pb-6 sm:pb-8
+                  lg:absolute lg:top-[68px] lg:right-4 xl:right-6 lg:px-0 lg:pb-0 lg:w-[280px] xl:w-[300px]">
+        <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
+            <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
+            <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 border-b border-border-c">No picks yet</div>
+            <div id="pickHistory" class="text-sm"></div>
         </section>
+        <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
+            <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">🚨 Expedites</h2>
+            <div class="flex justify-between items-baseline pb-3 mb-3 border-b border-border-c text-text-muted text-xs">
+                <span>Total to date</span>
+                <span id="expeditesTotal" class="text-brand font-bold text-lg tabular-nums">0</span>
+            </div>
+            <div id="quartersContainer"></div>
+        </section>
+    </aside>
 
-        <div id="liveWinner" class="sr-only" role="status" aria-live="polite"></div>
-    </div>
+    <div id="liveWinner" class="sr-only" role="status" aria-live="polite"></div>
 
     <!-- Edit Quarter Modal -->
     <div id="editModalOverlay"
@@ -841,20 +835,21 @@
             ro.observe(document.getElementById('wheelChart'));
 
             // Safety net: if the Spin button ends up below the viewport fold,
-            // shrink the wheel until it fits. Measured at runtime so we don't
-            // rely on viewport-height CSS math (which keeps biting us).
+            // shrink the wheel until it fits. Measures actual rendered DOM so
+            // it can't be wrong, unlike CSS calc/clamp guesses.
             function fitWheelToViewport() {
-                const wheel = document.querySelector('.relative.w-full.aspect-square') ||
-                              document.querySelector('[class*="aspect-square"]');
+                const wheel = document.getElementById('wheelOuter');
                 const btn = document.getElementById('spinButton');
                 if (!wheel || !btn) return;
-                // Reset any previous override so we re-measure cleanly.
+                // Save the inline max-height that the markup sets (responsive cap).
+                if (!wheel.dataset.origMaxHeight) {
+                    wheel.dataset.origMaxHeight = wheel.style.maxHeight || '';
+                }
                 wheel.style.maxWidth = '';
-                wheel.style.maxHeight = '';
+                wheel.style.maxHeight = wheel.dataset.origMaxHeight;
                 requestAnimationFrame(() => {
                     const btnBottom = btn.getBoundingClientRect().bottom;
-                    const vh = window.innerHeight;
-                    const overflow = btnBottom - vh + 16; // 16px breathing room
+                    const overflow = btnBottom - window.innerHeight + 16;
                     if (overflow > 0) {
                         const currentSize = wheel.getBoundingClientRect().width;
                         const newSize = Math.max(220, Math.floor(currentSize - overflow));
