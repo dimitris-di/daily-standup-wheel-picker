@@ -183,9 +183,9 @@
         row 3: stage (wheel + spin) in col 1, rail continues in col 2
       Rail anchors to the top-right corner via row-span-2 + self-start.
     -->
-    <div class="relative z-10 w-full max-w-[1400px] mx-auto min-h-screen
-                px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5
-                grid gap-4 sm:gap-5 lg:gap-6
+    <div class="relative z-10 w-full max-w-[1400px] mx-auto min-h-screen lg:h-screen lg:min-h-0 lg:overflow-hidden
+                px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-4
+                grid gap-3 sm:gap-4 lg:gap-5
                 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]
                 lg:grid-rows-[auto_auto_minmax(0,1fr)]">
 
@@ -198,12 +198,12 @@
         </header>
 
         <!-- ROW 2 col 1: Hero (date + day name + pips + countdown) -->
-        <section class="lg:col-start-1 lg:row-start-2 text-center flex flex-col items-center gap-1.5 sm:gap-2">
+        <section class="lg:col-start-1 lg:row-start-2 text-center flex flex-col items-center gap-1 sm:gap-1.5">
             <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
                 Thu · 21 May 2026
             </div>
             <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
-                                    text-4xl sm:text-5xl md:text-6xl">
+                                    text-3xl sm:text-4xl md:text-5xl">
                 <span class="accent-text">Monday</span>
             </h1>
             <div id="marquee" class="marquee-mask hidden w-full max-w-[640px] overflow-hidden whitespace-nowrap mt-1" aria-hidden="true">
@@ -225,10 +225,10 @@
         </section>
 
         <!-- ROW 3 col 1: Stage (wheel + spin), centered in the 1fr cell -->
-        <main class="lg:col-start-1 lg:row-start-3 min-h-0 flex flex-col items-center justify-center gap-4 sm:gap-5 lg:gap-6">
+        <main class="lg:col-start-1 lg:row-start-3 min-h-0 flex flex-col items-center justify-center gap-3 sm:gap-4">
             <div id="wheelOuter"
-                 class="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px] lg:max-w-[440px] xl:max-w-[480px] aspect-square"
-                 style="max-height: min(58vh, 480px);">
+                 class="relative aspect-square mx-auto"
+                 style="width: min(45vh, 100%, 460px); height: min(45vh, 100%, 460px);">
                 <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
                     <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
                         <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
@@ -251,8 +251,9 @@
             </button>
         </main>
 
-        <!-- ROWS 2-3 col 2: Rail (Stats + Expedites). self-start anchors to top-right. -->
-        <aside class="lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:self-start
+        <!-- ROWS 2-3 col 2: Rail (Stats + Expedites). self-start anchors to top-right.
+             max-h + overflow on lg+ so the rail can't push the grid taller than viewport. -->
+        <aside class="lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:self-start lg:max-h-full lg:overflow-y-auto
                       flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 min-w-0">
             <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
                 <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
@@ -871,8 +872,14 @@
                     }
                 });
             }
+            // Run multiple times to catch any layout settling (font load, chart init, rail render).
             fitWheelToViewport();
+            setTimeout(fitWheelToViewport, 100);
+            setTimeout(fitWheelToViewport, 400);
             window.addEventListener('resize', fitWheelToViewport);
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(fitWheelToViewport);
+            }
         });
     </script>
 </body>
