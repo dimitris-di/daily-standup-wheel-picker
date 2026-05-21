@@ -176,7 +176,7 @@
         }
     </script>
 
-    <div class="relative z-10 mx-auto w-full max-w-[1400px] min-h-screen flex flex-col gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6">
+    <div class="relative z-10 mx-auto w-full max-w-[1400px] min-h-screen flex flex-col gap-3 sm:gap-4 lg:gap-5 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5">
 
         <!-- Topbar -->
         <header class="flex items-center justify-between gap-3">
@@ -192,8 +192,7 @@
                 Thu · 21 May 2026
             </div>
             <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
-                                    text-4xl sm:text-5xl md:text-6xl lg:text-7xl
-                                    body-[data-day='5']:animate-friday-shimmer">
+                                    text-4xl sm:text-5xl md:text-6xl">
                 <span class="accent-text">Monday</span>
             </h1>
             <div id="weekStrip" class="flex gap-1.5 mt-1 flex-wrap justify-center"
@@ -218,8 +217,9 @@
         <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 lg:gap-6 items-start flex-1">
 
             <!-- Wheel card -->
-            <div class="flex flex-col items-center gap-5 sm:gap-6 lg:gap-7 pt-2 sm:pt-3 min-w-0">
-                <div class="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] aspect-square">
+            <div class="flex flex-col items-center gap-4 sm:gap-5 pt-1 sm:pt-2 min-w-0">
+                <div class="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[400px] xl:max-w-[440px] aspect-square"
+                     style="max-height: min(58vh, 440px);">
                     <!-- Pointer -->
                     <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
                         <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
@@ -839,6 +839,33 @@
 
             const ro = new ResizeObserver(() => chart && chart.update('none'));
             ro.observe(document.getElementById('wheelChart'));
+
+            // Safety net: if the Spin button ends up below the viewport fold,
+            // shrink the wheel until it fits. Measured at runtime so we don't
+            // rely on viewport-height CSS math (which keeps biting us).
+            function fitWheelToViewport() {
+                const wheel = document.querySelector('.relative.w-full.aspect-square') ||
+                              document.querySelector('[class*="aspect-square"]');
+                const btn = document.getElementById('spinButton');
+                if (!wheel || !btn) return;
+                // Reset any previous override so we re-measure cleanly.
+                wheel.style.maxWidth = '';
+                wheel.style.maxHeight = '';
+                requestAnimationFrame(() => {
+                    const btnBottom = btn.getBoundingClientRect().bottom;
+                    const vh = window.innerHeight;
+                    const overflow = btnBottom - vh + 16; // 16px breathing room
+                    if (overflow > 0) {
+                        const currentSize = wheel.getBoundingClientRect().width;
+                        const newSize = Math.max(220, Math.floor(currentSize - overflow));
+                        wheel.style.maxWidth = newSize + 'px';
+                        wheel.style.maxHeight = newSize + 'px';
+                        if (chart) chart.update('none');
+                    }
+                });
+            }
+            fitWheelToViewport();
+            window.addEventListener('resize', fitWheelToViewport);
         });
     </script>
 </body>
