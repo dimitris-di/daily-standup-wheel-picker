@@ -94,13 +94,57 @@
         body[data-day="5"] .friday-aurora { opacity: 0.45; }
 
         .wheel-rim {
+            z-index: 1;
             box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.04),
                 inset 0 0 0 1px #26262F,
                 0 0 0 8px #16161C,
-                0 0 0 9px #26262F,
-                0 40px 80px -20px rgba(0,0,0,0.6);
+                0 0 0 9px rgba(255,255,255,0.05),
+                0 28px 60px -24px rgba(0,0,0,0.88),
+                0 64px 130px -52px rgba(0,0,0,0.82),
+                0 0 90px -56px color-mix(in srgb, var(--accent) 42%, transparent);
+        }
+        .wheel-float {
+            isolation: isolate;
+        }
+        .wheel-float::before {
+            content: "";
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: -12%;
+            height: 26%;
+            border-radius: 9999px;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.72), rgba(0,0,0,0.34) 45%, transparent 74%);
+            filter: blur(22px);
+            transform: scaleX(1.08);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .wheel-float::after {
+            content: "";
+            position: absolute;
+            inset: -6%;
+            border-radius: 9999px;
+            background: radial-gradient(circle at 50% 50%, transparent 0 26%, color-mix(in srgb, var(--accent) 10%, transparent) 42%, transparent 72%);
+            filter: blur(30px);
+            opacity: 0.58;
+            z-index: -1;
+            pointer-events: none;
         }
         .wheel-transition { transition: transform 4.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        .panel-float {
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.04),
+                0 18px 44px -30px rgba(0,0,0,0.95),
+                0 36px 90px -58px rgba(0,0,0,0.85);
+        }
+        .panel-float.bg-surface {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 42%),
+                #16161C;
+        }
 
         .center-pin {
             background: radial-gradient(circle at 30% 30%, #1F1F27, #16161C);
@@ -176,30 +220,31 @@
 
     <!--
       Single outer CSS Grid binds the entire page.
-      Mobile (<lg): 1 column, everything stacks in DOM order.
-      Desktop (lg+): 2 columns [minmax(0,1fr) | 300px], 3 rows [auto, auto, 1fr]:
-        row 1: topbar spans both cols
-        row 2: hero in col 1, rail starts in col 2 (self-start, span 2 rows)
-        row 3: stage (wheel + spin) in col 1, rail continues in col 2
-      Rail anchors to the top-right corner via row-span-2 + self-start.
+      Mobile (<md): 1 column, everything stacks in DOM order.
+      Desktop/tablet (md+): 3 columns [day info | wheel stage | rail], 2 rows:
+        row 1: topbar spans all columns
+        row 2: hero top-left, wheel/action centered, rail top-right
+      This keeps the requested anchors without letting the hero push the wheel down.
     -->
-    <div class="relative z-10 w-full max-w-[1400px] mx-auto min-h-screen lg:h-screen lg:min-h-0 lg:overflow-hidden
-                px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-4
-                grid gap-3 sm:gap-4 lg:gap-5
-                grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_320px]
-                lg:grid-rows-[auto_auto_minmax(0,1fr)]">
+    <div class="relative z-10 w-full min-h-svh md:h-svh md:min-h-0 md:overflow-hidden
+                px-4 sm:px-6 lg:px-10 py-3 sm:py-4
+                grid gap-y-3 sm:gap-y-4 md:gap-y-3 gap-x-4 lg:gap-x-8
+                grid-cols-1 md:grid-cols-[minmax(160px,220px)_minmax(220px,1fr)_240px]
+                lg:grid-cols-[minmax(220px,280px)_minmax(320px,1fr)_300px]
+                xl:grid-cols-[minmax(260px,340px)_minmax(440px,1fr)_400px]
+                md:grid-rows-[auto_minmax(0,1fr)]">
 
-        <!-- ROW 1 (lg: spans both cols): Topbar -->
-        <header class="lg:col-span-2 flex items-center justify-between gap-3">
-            <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">Foxes · Daily</div>
+        <!-- ROW 1 (md+: spans all cols): Topbar -->
+        <header class="md:col-span-3 flex items-center justify-between gap-3">
+            <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">FOXES DAILY WHEEL</div>
             <button id="soundToggle"
                     class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg shrink-0"
                     aria-pressed="false" title="Toggle Friday chime">🔕</button>
         </header>
 
         <!-- ROW 2 col 1: Hero (date + day name + pips + countdown) -->
-        <section class="lg:col-start-1 lg:row-start-2 text-center flex flex-col items-center gap-1 sm:gap-1.5">
-            <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
+        <section class="md:col-start-1 md:row-start-2 md:self-start text-center md:text-left flex flex-col items-center md:items-start gap-2 pt-2 md:pt-3">
+            <div id="dateLine" class="sr-only">
                 Thu · 21 May 2026
             </div>
             <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
@@ -211,7 +256,7 @@
                     IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊
                 </span>
             </div>
-            <div id="weekStrip" class="flex gap-1.5 mt-1 flex-wrap justify-center"
+            <div id="weekStrip" class="flex gap-1.5 mt-1.5 flex-wrap justify-center md:justify-start"
                  role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-label="Week progress">
                 <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="1">MON</div>
                 <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="2">TUE</div>
@@ -219,16 +264,16 @@
                 <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="4">THU</div>
                 <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="5">FRI</div>
             </div>
-            <div id="countdown" class="text-xs sm:text-sm font-medium text-text-muted tabular-nums tracking-tight">
+            <div id="countdown" class="text-xs sm:text-sm font-medium text-text-muted tabular-nums tracking-tight mt-0.5">
                 Weekend in 4 days
             </div>
         </section>
 
-        <!-- ROW 3 col 1: Stage (wheel + spin), centered in the 1fr cell -->
-        <main class="lg:col-start-1 lg:row-start-3 min-h-0 flex flex-col items-center justify-center gap-3 sm:gap-4">
+        <!-- ROW 2 col 2: Stage (wheel + spin), centered as the primary action -->
+        <main class="md:col-start-2 md:row-start-2 md:h-full min-h-0 flex flex-col items-center justify-center gap-2.5 sm:gap-3">
             <div id="wheelOuter"
-                 class="relative aspect-square mx-auto"
-                 style="width: min(45vh, 100%, 460px); height: min(45vh, 100%, 460px);">
+                 class="wheel-float relative aspect-square mx-auto"
+                 style="width: var(--wheel-size, min(50svh, 100%, 500px)); height: var(--wheel-size, min(50svh, 100%, 500px));">
                 <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
                     <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
                         <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
@@ -251,20 +296,20 @@
             </button>
         </main>
 
-        <!-- ROWS 2-3 col 2: Rail (Stats + Expedites). self-start anchors to top-right.
-             max-h + overflow on lg+ so the rail can't push the grid taller than viewport. -->
-        <aside class="lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:self-start lg:max-h-full lg:overflow-y-auto
-                      flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 min-w-0">
-            <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
-                <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
-                <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 border-b border-border-c">No picks yet</div>
+        <!-- ROW 2 col 3: Rail (Stats + Expedites). self-start anchors to top-right.
+             max-h + overflow on md+ so the rail can't push the grid taller than viewport. -->
+        <aside class="md:col-start-3 md:row-start-2 md:self-start md:min-h-0 md:max-h-full md:overflow-y-auto
+                      flex flex-col sm:flex-row md:flex-col gap-3 sm:gap-4 md:gap-2.5 lg:gap-3 min-w-0">
+            <section class="panel-float bg-surface border border-border-c rounded-2xl p-4 md:p-3 md:flex-none flex-1 min-w-0">
+                <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3 md:mb-2">Team Stats</h2>
+                <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 md:pb-2 md:mb-2 border-b border-border-c">No picks yet</div>
                 <div id="pickHistory" class="text-sm"></div>
             </section>
-            <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
-                <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">🚨 Expedites</h2>
-                <div class="flex justify-between items-baseline pb-3 mb-3 border-b border-border-c text-text-muted text-xs">
+            <section class="panel-float bg-surface border border-border-c rounded-2xl p-4 md:flex-none flex-1 min-w-0">
+                <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-4">🚨 Expedites</h2>
+                <div class="flex justify-between items-end pb-4 mb-1 border-b border-border-c text-text-muted text-sm">
                     <span>Total to date</span>
-                    <span id="expeditesTotal" class="text-brand font-bold text-lg tabular-nums">0</span>
+                    <span id="expeditesTotal" class="text-brand font-bold text-2xl leading-none tabular-nums">0</span>
                 </div>
                 <div id="quartersContainer"></div>
             </section>
@@ -308,8 +353,8 @@
             <div id="winnerName" class="text-brand font-black uppercase leading-[0.9] tracking-[-0.05em] text-5xl sm:text-6xl md:text-7xl mb-3"></div>
             <div id="winnerSub" class="text-text-muted text-sm sm:text-base mb-6">Are you ready to share your updates?</div>
             <button id="closeWinner"
-                    class="px-6 py-3 bg-transparent border border-border-c text-text rounded-xl text-sm font-medium hover:bg-surface-2 hover:border-text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-                Let's go
+                    class="spin-btn px-8 py-3.5 min-w-[190px] rounded-2xl text-white text-sm font-bold tracking-[0.14em] uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
+                Start Standup
             </button>
         </div>
     </div>
@@ -358,7 +403,7 @@
             names.forEach(name => {
                 const count = pickStats.totalPicks[name] || 0;
                 const item = document.createElement('div');
-                item.className = 'flex justify-between text-text-muted py-1.5 border-b border-border-c last:border-b-0';
+                item.className = 'flex justify-between text-text-muted py-1 md:py-0.5 border-b border-border-c last:border-b-0';
                 item.innerHTML = `<span>${name}</span><span class="text-brand font-semibold tabular-nums">${count}</span>`;
                 historyEl.appendChild(item);
             });
@@ -659,11 +704,11 @@
             const pct = goal === 0 ? 100 : Math.min(Math.round(count / goal * 100), 100);
             const detail = met ? `✓ on track` : `✗ +${count - goal} over`;
             return `
-                <div class="mt-1.5">
-                    <div class="h-[3px] bg-surface-2 rounded-full overflow-hidden">
+                <div class="mt-2">
+                    <div class="h-1 bg-surface-2 rounded-full overflow-hidden">
                         <div class="${fillColor} h-full rounded-full transition-[width] duration-300" style="width:${pct}%"></div>
                     </div>
-                    <div class="flex justify-between mt-1 text-[0.62rem] font-medium tracking-wider">
+                    <div class="flex justify-between mt-1.5 text-[0.68rem] font-medium">
                         <span class="text-text-dim">${detail}</span>
                         <span class="${textColor} font-semibold">≤ ${goal}</span>
                     </div>
@@ -709,21 +754,21 @@
                 const count = data[key] || 0;
                 const goal = getPeriodGoal(year, pi, data);
                 const item = document.createElement('div');
-                item.className = 'py-2 border-b border-border-c last:border-b-0';
+                item.className = 'py-3 border-b border-border-c last:border-b-0';
 
                 if (pi === currentP) {
                     const countCls = periodCountColor(count, goal);
                     item.innerHTML = `
-                        <div class="flex items-center justify-between gap-1.5">
-                            <div class="flex items-center gap-1.5 text-sm font-medium text-text">
-                                P${pi} <span class="bg-brand text-white text-[0.5rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded">Current</span>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 text-base font-semibold text-text">
+                                P${pi} <span class="bg-brand text-white text-[0.56rem] font-bold tracking-wider uppercase px-2 py-1 rounded-md">Current</span>
                             </div>
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-2">
                                 <button id="q-dec-${pi}" aria-label="Decrease P${pi}"
-                                        class="w-6 h-6 rounded-md border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">−</button>
-                                <span class="${countCls} font-semibold text-base min-w-[24px] text-center tabular-nums">${count}</span>
+                                        class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">−</button>
+                                <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
                                 <button id="q-inc-${pi}" aria-label="Increase P${pi}"
-                                        class="w-6 h-6 rounded-md border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">+</button>
+                                        class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">+</button>
                             </div>
                         </div>
                         ${goalBar(goal, count, 'current')}`;
@@ -739,14 +784,14 @@
                 } else if (pi < currentP) {
                     const countCls = periodCountColor(count, goal);
                     item.innerHTML = `
-                        <div class="flex items-center justify-between gap-1.5">
-                            <div class="flex items-center gap-1.5 text-sm font-medium text-text">
-                                P${pi} <span class="bg-surface-2 text-text-dim text-[0.5rem] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded">Past</span>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 text-base font-semibold text-text">
+                                P${pi} <span class="bg-surface-2 text-text-dim text-[0.56rem] font-semibold tracking-wider uppercase px-2 py-1 rounded-md">Past</span>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="${countCls} font-semibold text-base min-w-[24px] text-center tabular-nums">${count}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
                                 <button data-key="${key}" data-label="P${pi}"
-                                        class="q-edit-btn bg-transparent border border-border-c text-text-muted text-[0.6rem] font-semibold tracking-wider px-2 py-0.5 rounded-md uppercase hover:bg-surface-2 hover:text-brand hover:border-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Edit</button>
+                                        class="q-edit-btn bg-transparent border border-border-c text-text-muted text-[0.62rem] font-semibold tracking-wider px-2.5 py-1 rounded-lg uppercase hover:bg-surface-2 hover:text-brand hover:border-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Edit</button>
                             </div>
                         </div>
                         ${goalBar(goal, count, 'past')}`;
@@ -756,10 +801,10 @@
                     });
                 } else {
                     item.innerHTML = `
-                        <div class="flex items-center justify-between gap-1.5">
-                            <div class="flex items-center gap-1.5 text-sm font-medium text-text-dim">P${pi}</div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-text-dim font-semibold text-base min-w-[24px] text-center">—</span>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 text-base font-semibold text-text-dim">P${pi}</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-text-dim font-semibold text-lg min-w-[30px] text-center">—</span>
                             </div>
                         </div>`;
                     container.appendChild(item);
@@ -847,30 +892,45 @@
             const ro = new ResizeObserver(() => chart && chart.update('none'));
             ro.observe(document.getElementById('wheelChart'));
 
-            // Safety net: if the Spin button ends up below the viewport fold,
-            // shrink the wheel until it fits. Measures actual rendered DOM so
-            // it can't be wrong, unlike CSS calc/clamp guesses.
+            // Layout sizing: the wheel is the flexible piece. Measure the
+            // actual stage slot and reserve room for the fixed Spin button.
             function fitWheelToViewport() {
                 const wheel = document.getElementById('wheelOuter');
                 const btn = document.getElementById('spinButton');
-                if (!wheel || !btn) return;
-                // Save the inline max-height that the markup sets (responsive cap).
-                if (!wheel.dataset.origMaxHeight) {
-                    wheel.dataset.origMaxHeight = wheel.style.maxHeight || '';
-                }
-                wheel.style.maxWidth = '';
-                wheel.style.maxHeight = wheel.dataset.origMaxHeight;
+                const stage = document.querySelector('main');
+                if (!wheel || !btn || !stage) return;
+                wheel.style.removeProperty('--wheel-size');
                 requestAnimationFrame(() => {
-                    const btnBottom = btn.getBoundingClientRect().bottom;
-                    const overflow = btnBottom - window.innerHeight + 16;
-                    if (overflow > 0) {
-                        const currentSize = wheel.getBoundingClientRect().width;
-                        const newSize = Math.max(220, Math.floor(currentSize - overflow));
-                        wheel.style.maxWidth = newSize + 'px';
-                        wheel.style.maxHeight = newSize + 'px';
-                        if (chart) chart.update('none');
-                    }
+                    const stageRect = stage.getBoundingClientRect();
+                    const btnRect = btn.getBoundingClientRect();
+                    const stageStyle = getComputedStyle(stage);
+                    const gap = parseFloat(stageStyle.rowGap || stageStyle.gap) || 0;
+                    const viewportPad = matchMedia('(min-width: 768px)').matches ? 14 : 18;
+                    const maxSize = matchMedia('(min-width: 1024px)').matches ? 460 : 420;
+                    const availableHeight = window.innerHeight - stageRect.top - btnRect.height - gap - viewportPad;
+                    const availableWidth = stageRect.width;
+                    const size = Math.floor(Math.max(180, Math.min(maxSize, availableHeight, availableWidth)));
+                    wheel.style.setProperty('--wheel-size', `${size}px`);
+                    if (chart) chart.update('none');
+
+                    requestAnimationFrame(() => {
+                        const overflow = btn.getBoundingClientRect().bottom - window.innerHeight + viewportPad;
+                        if (overflow > 0) {
+                            const adjusted = Math.max(140, size - Math.ceil(overflow));
+                            wheel.style.setProperty('--wheel-size', `${adjusted}px`);
+                            if (chart) chart.update('none');
+                        }
+                    });
                 });
+            }
+            function scheduleFitWheel() {
+                requestAnimationFrame(fitWheelToViewport);
+            }
+            if ('ResizeObserver' in window) {
+                const layoutObserver = new ResizeObserver(scheduleFitWheel);
+                layoutObserver.observe(document.querySelector('.grid'));
+                layoutObserver.observe(document.querySelector('main'));
+                layoutObserver.observe(document.querySelector('aside'));
             }
             // Run multiple times to catch any layout settling (font load, chart init, rail render).
             fitWheelToViewport();
