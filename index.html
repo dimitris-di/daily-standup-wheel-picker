@@ -163,7 +163,7 @@
         }
     </style>
 </head>
-<body data-day="1" class="relative bg-bg text-text font-sans antialiased min-h-screen overflow-x-hidden">
+<body data-day="1" class="relative bg-bg text-text font-sans antialiased min-h-screen overflow-x-hidden flex flex-col">
 
     <div class="friday-aurora pointer-events-none fixed inset-0 z-0 opacity-0 transition-opacity duration-1000 motion-only" aria-hidden="true"></div>
     <script>
@@ -174,49 +174,49 @@
         }
     </script>
 
-    <!-- Topbar: wordmark left, sound toggle right (in flow, always visible) -->
-    <header class="relative z-30 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+    <!-- 1. Topbar: wordmark left, sound toggle right -->
+    <header class="relative z-30 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shrink-0">
         <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">Foxes · Daily</div>
         <button id="soundToggle"
                 class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg shrink-0"
                 aria-pressed="false" title="Toggle Friday chime">🔕</button>
     </header>
 
-    <!-- Main: hero + wheel + spin button, perfectly centered in the viewport. -->
-    <main class="relative z-10 flex flex-col items-center justify-center gap-4 sm:gap-5 px-4 pb-8 pt-2 lg:pt-4"
-          style="min-height: calc(100vh - 76px);">
+    <!-- 2. Page header (date + day name) — pinned at the top so the wheel can come up. -->
+    <section class="relative z-20 text-center flex flex-col items-center gap-1 sm:gap-1.5 px-4 pb-1 sm:pb-2 shrink-0">
+        <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
+            Thu · 21 May 2026
+        </div>
+        <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
+                                text-4xl sm:text-5xl md:text-6xl">
+            <span class="accent-text">Monday</span>
+        </h1>
+        <div id="marquee" class="marquee-mask hidden w-full max-w-[640px] overflow-hidden whitespace-nowrap mt-1" aria-hidden="true">
+            <span class="inline-block font-bold text-xs tracking-[0.32em] uppercase text-brand motion-only animate-marquee" style="padding-left:100%;">
+                IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊
+            </span>
+        </div>
+    </section>
 
-        <!-- Hero (centered horizontally) -->
-        <section class="text-center flex flex-col items-center gap-1.5 sm:gap-2 w-full max-w-[640px]">
-            <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
-                Thu · 21 May 2026
-            </div>
-            <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
-                                    text-4xl sm:text-5xl md:text-6xl">
-                <span class="accent-text">Monday</span>
-            </h1>
-            <div id="weekStrip" class="flex gap-1.5 mt-1 flex-wrap justify-center"
-                 role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-label="Week progress">
-                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="1">MON</div>
-                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="2">TUE</div>
-                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="3">WED</div>
-                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="4">THU</div>
-                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="5">FRI</div>
-            </div>
-            <div id="countdown" class="text-sm font-medium text-text-muted tabular-nums tracking-tight">
-                Weekend in 4 days
-            </div>
-            <div id="marquee" class="marquee-mask hidden w-full max-w-[640px] overflow-hidden whitespace-nowrap" aria-hidden="true">
-                <span class="inline-block font-bold text-xs tracking-[0.32em] uppercase text-brand motion-only animate-marquee" style="padding-left:100%;">
-                    IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊
-                </span>
-            </div>
-        </section>
+    <!-- 3. Stage: pips + countdown + wheel + spin button, perfectly centered in the remaining viewport -->
+    <main class="relative z-10 flex-grow flex flex-col items-center justify-center gap-2.5 sm:gap-3 lg:gap-4 px-4 pb-5 sm:pb-6 pt-1 sm:pt-2">
+
+        <div id="weekStrip" class="flex gap-1.5 flex-wrap justify-center"
+             role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-label="Week progress">
+            <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="1">MON</div>
+            <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="2">TUE</div>
+            <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="3">WED</div>
+            <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="4">THU</div>
+            <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="5">FRI</div>
+        </div>
+        <div id="countdown" class="text-xs sm:text-sm font-medium text-text-muted tabular-nums tracking-tight">
+            Weekend in 4 days
+        </div>
 
         <!-- Wheel -->
         <div id="wheelOuter"
-             class="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[400px] xl:max-w-[440px] aspect-square"
-             style="max-height: min(58vh, 440px);">
+             class="relative w-full max-w-[300px] sm:max-w-[340px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[460px] aspect-square"
+             style="max-height: min(62vh, 460px);">
             <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
                 <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
                     <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
@@ -240,9 +240,9 @@
         </button>
     </main>
 
-    <!-- Rail: in flow below main on mobile/tablet, absolute top-right on lg+ -->
+    <!-- 4. Rail: in-flow below main on mobile/tablet, absolute top-right corner on lg+ -->
     <aside class="relative z-20 flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 px-4 sm:px-6 pb-6 sm:pb-8
-                  lg:absolute lg:top-[68px] lg:right-4 xl:right-6 lg:px-0 lg:pb-0 lg:w-[280px] xl:w-[300px]">
+                  lg:absolute lg:top-[60px] lg:right-4 xl:right-6 lg:px-0 lg:pb-0 lg:w-[280px] xl:w-[300px]">
         <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
             <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
             <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 border-b border-border-c">No picks yet</div>
