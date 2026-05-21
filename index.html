@@ -10,60 +10,78 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <!-- Prevent flash before Tailwind loads -->
+    <style>html, body { background: #0B0B0F; color: #F5F5F4; font-family: 'Geist', system-ui, sans-serif; }</style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg:           '#0B0B0F',
+                        surface:      '#16161C',
+                        'surface-2':  '#1F1F27',
+                        'border-c':   '#26262F',
+                        text:         '#F5F5F4',
+                        'text-muted': '#A8A29E',
+                        'text-dim':   '#57534E',
+                        brand:        '#FF6A3D',
+                        'brand-soft': '#FFB199',
+                        'brand-deep': '#C4421F',
+                        success:      '#34D399',
+                        danger:       '#F87171',
+                    },
+                    fontFamily: {
+                        sans: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    animation: {
+                        marquee:         'marquee 26s linear infinite',
+                        'pip-pulse':     'pip-pulse 2.4s ease-in-out infinite',
+                        'friday-shimmer':'friday-shimmer 3.4s ease-in-out infinite alternate',
+                        aurora:          'aurora 22s ease-in-out infinite alternate',
+                        settle:          'settle 320ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    },
+                    keyframes: {
+                        marquee: { to: { transform: 'translateX(-100%)' } },
+                        'pip-pulse': {
+                            '50%': { boxShadow: '0 0 0 5px rgba(255,106,61,0.12), 0 0 38px var(--accent)' }
+                        },
+                        'friday-shimmer': {
+                            from: { textShadow: '0 0 28px rgba(255,106,61,0.28)' },
+                            to:   { textShadow: '0 0 70px rgba(255,106,61,0.55), 0 0 16px rgba(255,106,61,0.4)' }
+                        },
+                        aurora: {
+                            '0%':   { backgroundPosition: '0% 0%, 100% 0%, 50% 100%, 0% 100%, 100% 50%' },
+                            '50%':  { backgroundPosition: '50% 30%, 60% 40%, 30% 70%, 40% 60%, 70% 30%' },
+                            '100%': { backgroundPosition: '100% 100%, 0% 100%, 80% 0%, 100% 0%, 0% 80%' },
+                        },
+                        settle: {
+                            from: { opacity: '0', transform: 'scale(0.96)' },
+                            to:   { opacity: '1', transform: 'scale(1)' },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-    <style>
-        :root {
-            --bg: #0B0B0F;
-            --surface: #16161C;
-            --surface-2: #1F1F27;
-            --border: #26262F;
-            --text: #F5F5F4;
-            --text-muted: #A8A29E;
-            --text-dim: #57534E;
-            --brand: #FF6A3D;
-            --brand-soft: #FFB199;
-            --brand-deep: #C4421F;
-            --success: #34D399;
-            --danger: #F87171;
-            --accent: var(--brand);
-            --ease: cubic-bezier(0.32, 0.72, 0, 1);
-            --font: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            --shell-pad: clamp(0.85rem, 2.5vw, 1.75rem);
-            --block-gap: clamp(0.85rem, 2.8vh, 1.5rem);
-            /* Vertical budget reserved for everything OTHER than the wheel
-               (topbar + hero + button + gaps + paddings). The wheel sizes
-               itself to (viewport height − this), capped at its max width. */
-            --wheel-reserve: 440px;
-        }
+    <!-- Things Tailwind can't express cleanly: per-day accent, aurora gradient, wheel rim shadow stack. -->
+    <style type="text/css">
+        :root { --accent: #FF6A3D; }
+        body[data-day="0"], body[data-day="6"] { --accent: #A78BFA; }
+        body[data-day="1"] { --accent: #6366F1; }
+        body[data-day="2"] { --accent: #0EA5E9; }
+        body[data-day="3"] { --accent: #F59E0B; }
+        body[data-day="4"] { --accent: #84CC16; }
+        body[data-day="5"] { --accent: #FF6A3D; }
 
-        [data-day="1"] { --accent: #6366F1; }
-        [data-day="2"] { --accent: #0EA5E9; }
-        [data-day="3"] { --accent: #F59E0B; }
-        [data-day="4"] { --accent: #84CC16; }
-        [data-day="5"] { --accent: #FF6A3D; }
-        [data-day="0"], [data-day="6"] { --accent: #A78BFA; }
+        .accent-text { color: var(--accent); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html { color-scheme: dark; }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100svh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            -webkit-font-smoothing: antialiased;
-            font-feature-settings: 'ss01', 'cv11';
-        }
-
-        /* ── Friday aurora ───────────────────────────────────────────────── */
         .friday-aurora {
-            position: fixed; inset: 0; z-index: 0; opacity: 0;
-            pointer-events: none;
             background:
                 radial-gradient(at 20% 30%, #FF6A3D 0px, transparent 50%),
                 radial-gradient(at 80% 20%, #C4421F 0px, transparent 50%),
@@ -72,747 +90,173 @@
                 radial-gradient(at 90% 60%, #9333EA 0px, transparent 50%);
             background-size: 200% 200%;
             filter: blur(60px) saturate(1.2);
-            transition: opacity 1s ease;
         }
         body[data-day="5"] .friday-aurora { opacity: 0.45; }
-        @media (prefers-reduced-motion: no-preference) {
-            body[data-day="5"] .friday-aurora { animation: aurora 22s ease-in-out infinite alternate; }
-        }
-        @keyframes aurora {
-            0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 100%, 100% 50%; }
-            50%  { background-position: 50% 30%, 60% 40%, 30% 70%, 40% 60%, 70% 30%; }
-            100% { background-position: 100% 100%, 0% 100%, 80% 0%, 100% 0%, 0% 80%; }
-        }
 
-        /* ── Shell: outer page container ─────────────────────────────────── */
-        .shell {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 1480px;
-            margin-inline: auto;
-            padding: var(--shell-pad);
-            display: flex;
-            flex-direction: column;
-            gap: var(--block-gap);
-            min-height: 100svh;
-        }
-
-        /* ── Topbar ──────────────────────────────────────────────────────── */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .wordmark {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-        }
-
-        .sound-toggle {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            width: 34px; height: 34px;
-            border-radius: 9px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s var(--ease);
-            flex-shrink: 0;
-        }
-        .sound-toggle:hover { color: var(--text); border-color: var(--text-muted); }
-        .sound-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-
-        /* ── Hero (above the play area, full width centered) ─────────────── */
-        .hero {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: clamp(0.3rem, 0.9vh, 0.55rem);
-        }
-
-        .date-line {
-            font-size: 0.74rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .day-name {
-            font-weight: 800;
-            /* Dual-axis: shrinks on narrow OR short viewports.
-               Max capped at 5.5rem (was 6.5) so it doesn't dominate on laptops. */
-            font-size: clamp(2.25rem, min(7.5vw, 8.5vh), 5.5rem);
-            line-height: 0.9;
-            letter-spacing: -0.055em;
-            text-transform: uppercase;
-            color: var(--text);
-        }
-        .day-name .accent { color: var(--accent); }
-
-        body[data-day="5"] .day-name {
-            text-shadow: 0 0 50px rgba(255, 106, 61, 0.35);
-        }
-        @media (prefers-reduced-motion: no-preference) {
-            body[data-day="5"] .day-name {
-                animation: friday-shimmer 3.4s ease-in-out infinite alternate;
-            }
-        }
-        @keyframes friday-shimmer {
-            from { text-shadow: 0 0 28px rgba(255, 106, 61, 0.28); }
-            to   { text-shadow: 0 0 70px rgba(255, 106, 61, 0.55), 0 0 16px rgba(255, 106, 61, 0.4); }
-        }
-
-        .week-strip {
-            display: flex;
-            gap: clamp(0.3rem, 0.8vw, 0.5rem);
-            margin-top: clamp(0.3rem, 0.8vh, 0.5rem);
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .pip {
-            width: clamp(34px, 4vw, 44px);
-            height: 14px;
-            border-radius: 999px;
-            display: grid;
-            place-items: center;
-            font-size: 0.58rem;
-            font-weight: 600;
-            background: var(--surface-2);
-            color: var(--text-dim);
-            letter-spacing: 0.08em;
-            transition: all 0.4s var(--ease);
-        }
-        .pip.done {
-            background: color-mix(in srgb, var(--accent) 28%, transparent);
-            color: var(--text);
-        }
-        .pip.today {
-            background: var(--accent);
-            color: white;
+        .wheel-rim {
             box-shadow:
-                0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent),
-                0 0 24px color-mix(in srgb, var(--accent) 65%, transparent);
-        }
-        @media (prefers-reduced-motion: no-preference) {
-            .pip.today { animation: pip-pulse 2.4s ease-in-out infinite; }
-        }
-        @keyframes pip-pulse {
-            50% {
-                box-shadow:
-                    0 0 0 5px color-mix(in srgb, var(--accent) 12%, transparent),
-                    0 0 38px var(--accent);
-            }
-        }
-
-        .countdown {
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
-            font-variant-numeric: tabular-nums;
-        }
-        body[data-day="5"] .countdown {
-            color: var(--brand-soft);
-            font-weight: 600;
-        }
-
-        .marquee {
-            display: none;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-            max-width: 640px;
-            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-        }
-        body[data-day="5"] .marquee { display: block; }
-        .marquee__track {
-            display: inline-block;
-            padding-left: 100%;
-            font-weight: 700;
-            font-size: 0.78rem;
-            letter-spacing: 0.32em;
-            color: var(--brand);
-            text-transform: uppercase;
-        }
-        @media (prefers-reduced-motion: no-preference) {
-            .marquee__track { animation: marquee 26s linear infinite; }
-        }
-        @keyframes marquee { to { transform: translateX(-100%); } }
-
-        /* ── Play area: wheel-card + rail ────────────────────────────────── */
-        .play-area {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) clamp(280px, 24vw, 360px);
-            gap: clamp(1rem, 2vw, 1.75rem);
-            align-items: start;
-            flex: 1;
-        }
-
-        .wheel-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: clamp(0.85rem, 2.5vh, 1.6rem);
-            padding-top: clamp(0.5rem, 1.8vh, 1.25rem);
-            min-width: 0;
-        }
-
-        .wheel-container {
-            position: relative;
-            /* Sizes against (a) max design width, (b) container width,
-               (c) remaining viewport height after the reserved budget for
-               header + hero + button. The smallest wins, so the Spin button
-               is GUARANTEED to fit below it. */
-            width: min(540px, 100%, calc(100svh - var(--wheel-reserve)));
-            min-width: 220px;
-            aspect-ratio: 1;
-        }
-
-        .chart-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow:
-                inset 0 0 0 1px var(--border),
-                0 0 0 8px var(--surface),
-                0 0 0 9px var(--border),
+                inset 0 0 0 1px #26262F,
+                0 0 0 8px #16161C,
+                0 0 0 9px #26262F,
                 0 40px 80px -20px rgba(0,0,0,0.6);
-            transition: transform 4.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        #wheelChart { width: 100% !important; height: 100% !important; }
+        .wheel-transition { transition: transform 4.6s cubic-bezier(0.16, 1, 0.3, 1); }
 
         .center-pin {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: clamp(54px, 12%, 80px);
-            aspect-ratio: 1;
-            background: radial-gradient(circle at 30% 30%, var(--surface-2), var(--surface));
-            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1F1F27, #16161C);
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.12),
                 inset 0 -1px 0 rgba(0,0,0,0.45),
                 0 4px 22px rgba(0,0,0,0.55);
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(1.5rem, 4cqi, 2.2rem);
         }
 
-        .pointer {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-            width: clamp(36px, 9%, 50px);
-            filter: drop-shadow(0 2px 0 var(--brand-deep)) drop-shadow(0 8px 18px rgba(255,106,61,0.4));
-            pointer-events: none;
+        .pointer-svg {
+            filter: drop-shadow(0 2px 0 #C4421F) drop-shadow(0 8px 18px rgba(255,106,61,0.4));
         }
-        .pointer svg { display: block; width: 100%; height: auto; }
 
-        .spin-button {
-            padding: clamp(0.85rem, 1.8vh, 1.05rem) clamp(2rem, 5vw, 3rem);
-            font-family: var(--font);
-            font-size: clamp(0.8rem, 1.4vh, 0.9rem);
-            font-weight: 700;
-            color: white;
+        .spin-btn {
             background: linear-gradient(180deg, #FF7A4D, #FF5A28);
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            min-width: 180px;
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.25),
                 inset 0 -1px 0 rgba(0,0,0,0.2),
                 0 10px 30px -8px rgba(255,106,61,0.55);
-            transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+            transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1),
+                        box-shadow 0.18s cubic-bezier(0.32, 0.72, 0, 1);
         }
-        .spin-button:hover {
+        .spin-btn:hover:not(:disabled) {
             transform: translateY(-1px);
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.3),
                 inset 0 -1px 0 rgba(0,0,0,0.2),
                 0 14px 40px -8px rgba(255,106,61,0.7);
         }
-        .spin-button:active { transform: translateY(0); }
-        .spin-button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
-        .spin-button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+        .spin-btn:active:not(:disabled) { transform: translateY(0); }
 
-        /* ── Rail ────────────────────────────────────────────────────────── */
-        .rail {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-width: 0;
+        .pip-base {
+            background: #1F1F27;
+            color: #57534E;
         }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.1rem 1.2rem;
+        .pip-done {
+            background: color-mix(in srgb, var(--accent) 28%, transparent);
+            color: #F5F5F4;
         }
-
-        .card__title {
-            font-size: 0.66rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            margin-bottom: 0.9rem;
-        }
-
-        .current-streak-display {
-            font-size: 0.88rem;
-            color: var(--text);
-            margin-bottom: 0.9rem;
-            padding-bottom: 0.9rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .streak-count { color: var(--brand); font-weight: 600; }
-
-        .pick-history { font-size: 0.88rem; }
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            padding: 0.45rem 0;
-        }
-        .history-item:not(:last-child) { border-bottom: 1px solid var(--border); }
-        .history-count {
-            color: var(--brand);
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .expedites-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-bottom: 0.9rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .expedites-total-num {
-            color: var(--brand);
-            font-weight: 700;
-            font-size: 1.2rem;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .period-item { padding: 0.55rem 0; }
-        .period-item:not(:last-child) { border-bottom: 1px solid var(--border); }
-        .period-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
-        .period-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-        .period-label.muted { color: var(--text-dim); }
-
-        .badge-current {
-            background: var(--brand);
+        .pip-today {
+            background: var(--accent);
             color: white;
-            font-size: 0.52rem;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 4px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-        .badge-past {
-            background: var(--surface-2);
-            color: var(--text-dim);
-            font-size: 0.52rem;
-            font-weight: 600;
-            padding: 2px 7px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
+            box-shadow:
+                0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent),
+                0 0 24px color-mix(in srgb, var(--accent) 65%, transparent);
         }
 
-        .period-right { display: flex; align-items: center; gap: 6px; }
-        .period-count {
-            font-weight: 600;
-            font-size: 1rem;
-            min-width: 24px;
-            text-align: center;
-            color: var(--brand);
-            font-variant-numeric: tabular-nums;
+        .marquee-mask {
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+                    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
         }
-        .period-count.on-track { color: var(--success); }
-        .period-count.over-goal { color: var(--danger); }
-        .period-count.muted { color: var(--text-dim); }
 
-        .q-btn {
-            width: 26px; height: 26px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            background: var(--surface-2);
-            color: var(--brand);
-            font-size: 0.95rem;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s var(--ease);
-        }
-        .q-btn:hover { background: var(--brand); color: white; border-color: var(--brand); }
-        .q-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-        .q-btn:active { transform: scale(0.94); }
-
-        .q-edit-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 3px 9px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            transition: all 0.15s var(--ease);
-        }
-        .q-edit-btn:hover {
-            background: var(--surface-2);
-            color: var(--brand);
-            border-color: var(--brand);
-        }
-        .q-edit-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-
-        .goal-bar-wrap { margin-top: 6px; }
-        .goal-bar-track {
-            height: 3px;
-            background: var(--surface-2);
-            border-radius: 99px;
-            overflow: hidden;
-        }
-        .goal-bar-fill {
-            height: 100%;
-            border-radius: 99px;
-            transition: width 0.35s var(--ease);
-        }
-        .goal-bar-fill.on-track { background: var(--success); }
-        .goal-bar-fill.over-goal { background: var(--danger); }
-        .goal-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 4px;
-            font-size: 0.62rem;
-            font-weight: 500;
-            letter-spacing: 0.04em;
-        }
-        .goal-text .gt-label { color: var(--text-dim); }
-        .goal-text .gt-value { font-weight: 600; }
-        .goal-text.on-track .gt-value { color: var(--success); }
-        .goal-text.over-goal .gt-value { color: var(--danger); }
-
-        /* ── Modals ──────────────────────────────────────────────────────── */
-        .edit-modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(11,11,15,0.6);
+        .glass-overlay {
             backdrop-filter: blur(20px) saturate(120%);
             -webkit-backdrop-filter: blur(20px) saturate(120%);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .edit-modal-overlay.open { display: flex; }
-
-        .edit-modal {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 2rem;
-            width: min(360px, 100%);
-            text-align: center;
-            animation: settle 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .edit-modal h3 {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-        }
-        .edit-modal p {
-            color: var(--text-dim);
-            font-size: 0.82rem;
-            margin-bottom: 1.2rem;
-        }
-        .edit-modal-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 18px;
-            margin-bottom: 1.5rem;
-        }
-        .modal-q-btn {
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--surface-2);
-            color: var(--brand);
-            font-size: 1.4rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s var(--ease);
-        }
-        .modal-q-btn:hover { background: var(--brand); color: white; border-color: var(--brand); }
-        .modal-q-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-        .modal-count-display {
-            color: var(--text);
-            font-size: 2.6rem;
-            font-weight: 700;
-            min-width: 80px;
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.02em;
-        }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; }
-        .modal-save-btn {
-            padding: 0.55rem 1.4rem;
-            background: var(--brand);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 600;
-            font-family: var(--font);
-            letter-spacing: 0.04em;
-            transition: all 0.15s var(--ease);
-        }
-        .modal-save-btn:hover { filter: brightness(1.08); }
-        .modal-save-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-        .modal-cancel-btn {
-            padding: 0.55rem 1.4rem;
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-family: var(--font);
-            transition: all 0.15s var(--ease);
-        }
-        .modal-cancel-btn:hover { color: var(--text); border-color: var(--text-muted); }
-        .modal-cancel-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-
-        .winner {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(11,11,15,0.6);
-            backdrop-filter: blur(20px) saturate(120%);
-            -webkit-backdrop-filter: blur(20px) saturate(120%);
-            z-index: 300;
-            padding: 1rem;
-        }
-        .winner.show { display: flex; }
-        .winner__card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: clamp(2rem, 4vh, 3rem) clamp(2rem, 6vw, 4rem);
-            text-align: center;
-            width: min(580px, 100%);
-            animation: settle 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes settle {
-            from { opacity: 0; transform: scale(0.96); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-        .winner__fox { font-size: 2rem; margin-bottom: 0.8rem; }
-        .winner__eyebrow {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-        }
-        .winner__name {
-            font-weight: 800;
-            font-size: clamp(2.6rem, 6vw, 4.5rem);
-            line-height: 0.9;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            color: var(--brand);
-            margin-bottom: 0.7rem;
-        }
-        .winner__sub {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 1.8rem;
-        }
-        .close-winner {
-            padding: 0.7rem 1.8rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: var(--font);
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.04em;
-            transition: all 0.15s var(--ease);
-        }
-        .close-winner:hover { background: var(--surface-2); border-color: var(--text-muted); }
-        .close-winner:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-
-        .sr-only {
-            position: absolute !important;
-            width: 1px; height: 1px;
-            padding: 0; margin: -1px;
-            overflow: hidden; clip: rect(0,0,0,0);
-            white-space: nowrap; border: 0;
         }
 
-        /* ── Responsive: rail stacks below at narrow widths ──────────────── */
-        @media (max-width: 960px) {
-            :root { --wheel-reserve: 540px; } /* rail-row is now below, reserve more */
-            .play-area {
-                grid-template-columns: 1fr;
-                gap: clamp(1rem, 2.5vh, 1.75rem);
-            }
-            .rail {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            .rail .card { flex: 1 1 280px; min-width: 0; }
-            .wheel-container {
-                width: min(460px, 100%, calc(100svh - var(--wheel-reserve)));
-            }
-        }
-
-        @media (max-width: 600px) {
-            :root { --wheel-reserve: 380px; }
-            .rail { flex-direction: column; }
-            .day-name { font-size: clamp(2.3rem, 11vw, 4rem); }
-            .wheel-container {
-                width: min(420px, 100%, calc(100svh - var(--wheel-reserve)));
-                min-width: 200px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            :root { --shell-pad: 0.85rem; --wheel-reserve: 340px; }
-            .day-name { font-size: clamp(2rem, 12vw, 3.2rem); }
-            .wheel-container { width: min(320px, 100%); min-width: 180px; }
-            .spin-button { min-width: 140px; }
-        }
-
-        /* Very short viewports (laptop in split-screen, 720p TV, etc.):
-           keep the wheel small enough that Spin always fits without scroll. */
-        @media (max-height: 760px) {
-            :root {
-                --block-gap: clamp(0.6rem, 2vh, 1rem);
-                --shell-pad: clamp(0.75rem, 2vw, 1.25rem);
-            }
-            .day-name { font-size: clamp(2rem, 7vh, 4rem); }
-            .hero { gap: clamp(0.2rem, 0.6vh, 0.4rem); }
-            .wheel-card {
-                gap: clamp(0.6rem, 1.8vh, 1rem);
-                padding-top: clamp(0.4rem, 1.2vh, 0.8rem);
-            }
+        @media (prefers-reduced-motion: reduce) {
+            .motion-only { animation: none !important; }
         }
     </style>
 </head>
-<body data-day="1">
-    <div class="friday-aurora" aria-hidden="true"></div>
+<body data-day="1" class="bg-bg text-text font-sans antialiased min-h-screen overflow-x-hidden">
 
-    <div class="shell">
-        <header class="topbar">
-            <div class="wordmark">Foxes · Daily</div>
-            <button id="soundToggle" class="sound-toggle" aria-pressed="false" title="Toggle Friday chime">🔕</button>
+    <div class="friday-aurora pointer-events-none fixed inset-0 z-0 opacity-0 transition-opacity duration-1000 motion-only" aria-hidden="true"
+         style="--tw-bg-opacity: 1;"></div>
+    <script>
+        // Only animate the aurora when on Friday and motion is allowed.
+        if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelector('.friday-aurora').classList.add('motion-safe:animate-aurora');
+            });
+        }
+    </script>
+
+    <div class="relative z-10 mx-auto w-full max-w-[1400px] min-h-screen flex flex-col gap-4 sm:gap-5 lg:gap-6 px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6">
+
+        <!-- Topbar -->
+        <header class="flex items-center justify-between gap-3">
+            <div class="text-[0.7rem] font-semibold tracking-[0.22em] uppercase text-text-muted">Foxes · Daily</div>
+            <button id="soundToggle"
+                    class="bg-surface border border-border-c text-text-muted hover:text-text hover:border-text-muted w-9 h-9 rounded-lg flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                    aria-pressed="false" title="Toggle Friday chime">🔕</button>
         </header>
 
-        <section class="hero">
-            <div class="date-line" id="dateLine">Thu · 21 May 2026</div>
-            <h1 class="day-name" id="dayName"><span class="accent">Monday</span></h1>
-            <div class="week-strip" id="weekStrip" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-label="Week progress">
-                <div class="pip" data-day="1">MON</div>
-                <div class="pip" data-day="2">TUE</div>
-                <div class="pip" data-day="3">WED</div>
-                <div class="pip" data-day="4">THU</div>
-                <div class="pip" data-day="5">FRI</div>
+        <!-- Hero -->
+        <section class="text-center flex flex-col items-center gap-1.5 sm:gap-2">
+            <div id="dateLine" class="text-[0.7rem] sm:text-xs font-semibold tracking-[0.28em] uppercase text-text-muted tabular-nums">
+                Thu · 21 May 2026
             </div>
-            <div class="countdown" id="countdown">Weekend in 4 days</div>
-            <div class="marquee" aria-hidden="true">
-                <span class="marquee__track">IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊 </span>
+            <h1 id="dayName" class="font-black uppercase leading-[0.9] tracking-[-0.055em]
+                                    text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+                                    body-[data-day='5']:animate-friday-shimmer">
+                <span class="accent-text">Monday</span>
+            </h1>
+            <div id="weekStrip" class="flex gap-1.5 mt-1 flex-wrap justify-center"
+                 role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-label="Week progress">
+                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="1">MON</div>
+                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="2">TUE</div>
+                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="3">WED</div>
+                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="4">THU</div>
+                <div class="pip pip-base w-10 h-3.5 rounded-full grid place-items-center text-[0.55rem] font-semibold tracking-wider transition-all duration-300" data-day="5">FRI</div>
+            </div>
+            <div id="countdown" class="text-sm font-medium text-text-muted tabular-nums tracking-tight">
+                Weekend in 4 days
+            </div>
+            <div id="marquee" class="marquee-mask hidden w-full max-w-[640px] overflow-hidden whitespace-nowrap" aria-hidden="true">
+                <span class="inline-block pl-full font-bold text-xs tracking-[0.32em] uppercase text-brand motion-only animate-marquee" style="padding-left:100%;">
+                    IT'S FRIDAY 🦊 WEEKEND INCOMING 🦊 GO HAVE FUN 🦊 IT'S FRIDAY 🦊
+                </span>
             </div>
         </section>
 
-        <section class="play-area">
-            <div class="wheel-card">
-                <div class="wheel-container">
-                    <div class="pointer">
-                        <svg viewBox="0 0 44 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Play area: wheel + rail -->
+        <section class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 lg:gap-6 items-start flex-1">
+
+            <!-- Wheel card -->
+            <div class="flex flex-col items-center gap-5 sm:gap-6 lg:gap-7 pt-2 sm:pt-3 min-w-0">
+                <div class="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] aspect-square">
+                    <!-- Pointer -->
+                    <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
+                        <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
                             <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
                         </svg>
                     </div>
-                    <div class="chart-container" id="chartContainer">
-                        <canvas id="wheelChart"></canvas>
+                    <!-- Wheel chart -->
+                    <div id="chartContainer" class="wheel-rim wheel-transition relative w-full h-full rounded-full overflow-hidden">
+                        <canvas id="wheelChart" class="!w-full !h-full"></canvas>
                     </div>
-                    <div class="center-pin" aria-hidden="true">🦊</div>
+                    <!-- Center pin -->
+                    <div class="center-pin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
+                                w-[18%] aspect-square rounded-full flex items-center justify-center text-2xl sm:text-3xl"
+                         aria-hidden="true">🦊</div>
                 </div>
 
-                <button class="spin-button" id="spinButton">Spin</button>
+                <button id="spinButton"
+                        class="spin-btn text-white font-bold text-sm tracking-[0.14em] uppercase
+                               px-8 sm:px-10 py-3 sm:py-3.5 rounded-2xl min-w-[180px]
+                               focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-4 focus-visible:ring-offset-bg
+                               disabled:opacity-50 disabled:cursor-not-allowed">
+                    Spin
+                </button>
             </div>
 
-            <aside class="rail">
-                <section class="card">
-                    <h2 class="card__title">Team Stats</h2>
-                    <div class="current-streak-display" id="currentStreakDisplay">No picks yet</div>
-                    <div class="pick-history" id="pickHistory"></div>
+            <!-- Rail -->
+            <aside class="flex flex-col sm:flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-3 min-w-0">
+                <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
+                    <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">Team Stats</h2>
+                    <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 border-b border-border-c">No picks yet</div>
+                    <div id="pickHistory" class="text-sm"></div>
                 </section>
-                <section class="card">
-                    <h2 class="card__title">🚨 Expedites</h2>
-                    <div class="expedites-total">
+                <section class="bg-surface border border-border-c rounded-2xl p-4 sm:p-5 flex-1 min-w-0">
+                    <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3">🚨 Expedites</h2>
+                    <div class="flex justify-between items-baseline pb-3 mb-3 border-b border-border-c text-text-muted text-xs">
                         <span>Total to date</span>
-                        <span class="expedites-total-num" id="expeditesTotal">0</span>
+                        <span id="expeditesTotal" class="text-brand font-bold text-lg tabular-nums">0</span>
                     </div>
                     <div id="quartersContainer"></div>
                 </section>
@@ -822,29 +266,44 @@
         <div id="liveWinner" class="sr-only" role="status" aria-live="polite"></div>
     </div>
 
-    <div class="edit-modal-overlay" id="editModalOverlay" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-        <div class="edit-modal">
-            <h3 id="editModalTitle">Edit Quarter</h3>
-            <p>Adjust expedite count for this quarter</p>
-            <div class="edit-modal-controls">
-                <button class="modal-q-btn" id="modalDecBtn" aria-label="Decrease">−</button>
-                <div class="modal-count-display" id="modalCountDisplay">0</div>
-                <button class="modal-q-btn" id="modalIncBtn" aria-label="Increase">+</button>
+    <!-- Edit Quarter Modal -->
+    <div id="editModalOverlay"
+         class="hidden fixed inset-0 z-[200] items-center justify-center p-4 bg-black/60 glass-overlay"
+         role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="bg-surface border border-border-c rounded-3xl p-8 w-full max-w-[360px] text-center animate-settle">
+            <h3 id="editModalTitle" class="text-text-muted text-[0.7rem] font-semibold tracking-[0.22em] uppercase mb-1">Edit Quarter</h3>
+            <p class="text-text-dim text-sm mb-5">Adjust expedite count for this quarter</p>
+            <div class="flex items-center justify-center gap-5 mb-6">
+                <button id="modalDecBtn"
+                        class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        aria-label="Decrease">−</button>
+                <div id="modalCountDisplay" class="text-text text-5xl font-bold leading-none tabular-nums min-w-[80px]">0</div>
+                <button id="modalIncBtn"
+                        class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                        aria-label="Increase">+</button>
             </div>
-            <div class="modal-actions">
-                <button class="modal-cancel-btn" id="modalCancelBtn">Cancel</button>
-                <button class="modal-save-btn" id="modalSaveBtn">Save</button>
+            <div class="flex gap-2.5 justify-center">
+                <button id="modalCancelBtn"
+                        class="px-5 py-2 bg-transparent text-text-muted border border-border-c rounded-xl text-sm hover:text-text hover:border-text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Cancel</button>
+                <button id="modalSaveBtn"
+                        class="px-5 py-2 bg-brand text-white border-0 rounded-xl text-sm font-semibold hover:brightness-110 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Save</button>
             </div>
         </div>
     </div>
 
-    <div class="winner" id="winner" role="dialog" aria-modal="true" aria-labelledby="winnerName">
-        <div class="winner__card">
-            <div class="winner__fox" aria-hidden="true">🦊</div>
-            <div class="winner__eyebrow" id="winnerEyebrow">Today's speaker</div>
-            <div class="winner__name" id="winnerName"></div>
-            <div class="winner__sub" id="winnerSub">Are you ready to share your updates?</div>
-            <button class="close-winner" id="closeWinner">Let's go</button>
+    <!-- Winner Modal -->
+    <div id="winner"
+         class="hidden fixed inset-0 z-[300] items-center justify-center p-4 bg-black/60 glass-overlay"
+         role="dialog" aria-modal="true" aria-labelledby="winnerName">
+        <div class="bg-surface border border-border-c rounded-3xl p-8 sm:p-10 w-full max-w-[580px] text-center animate-settle">
+            <div class="text-3xl mb-3" aria-hidden="true">🦊</div>
+            <div id="winnerEyebrow" class="text-text-muted text-xs font-semibold tracking-[0.28em] uppercase mb-3">Today's speaker</div>
+            <div id="winnerName" class="text-brand font-black uppercase leading-[0.9] tracking-[-0.05em] text-5xl sm:text-6xl md:text-7xl mb-3"></div>
+            <div id="winnerSub" class="text-text-muted text-sm sm:text-base mb-6">Are you ready to share your updates?</div>
+            <button id="closeWinner"
+                    class="px-6 py-3 bg-transparent border border-border-c text-text rounded-xl text-sm font-medium hover:bg-surface-2 hover:border-text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+                Let's go
+            </button>
         </div>
     </div>
 
@@ -883,8 +342,8 @@
             if (pickStats.currentStreak.person) {
                 const c = pickStats.currentStreak.count;
                 streakEl.innerHTML = c === 1
-                    ? `Current: <span class="streak-count">${pickStats.currentStreak.person}</span>`
-                    : `<span class="streak-count">${pickStats.currentStreak.person}</span> · ${c} in a row`;
+                    ? `Current: <span class="text-brand font-semibold">${pickStats.currentStreak.person}</span>`
+                    : `<span class="text-brand font-semibold">${pickStats.currentStreak.person}</span> · ${c} in a row`;
             } else {
                 streakEl.innerHTML = 'No picks yet';
             }
@@ -892,8 +351,8 @@
             names.forEach(name => {
                 const count = pickStats.totalPicks[name] || 0;
                 const item = document.createElement('div');
-                item.className = 'history-item';
-                item.innerHTML = `<span>${name}</span><span class="history-count">${count}</span>`;
+                item.className = 'flex justify-between text-text-muted py-1.5 border-b border-border-c last:border-b-0';
+                item.innerHTML = `<span>${name}</span><span class="text-brand font-semibold tabular-nums">${count}</span>`;
                 historyEl.appendChild(item);
             });
         }
@@ -913,15 +372,27 @@
 
             const dayNameEl   = document.getElementById('dayName');
             const countdownEl = document.getElementById('countdown');
+            const marqueeEl   = document.getElementById('marquee');
 
             if (dayIdx === 5) {
-                dayNameEl.innerHTML = `<span class="accent">Friday</span> 🎉`;
+                dayNameEl.innerHTML = `<span class="accent-text">Friday</span> 🎉`;
+                dayNameEl.classList.add('motion-safe:animate-friday-shimmer');
+                marqueeEl.classList.remove('hidden');
+                marqueeEl.classList.add('block');
                 tickFridayCountdown();
                 if (countdownInterval) clearInterval(countdownInterval);
                 countdownInterval = setInterval(tickFridayCountdown, 1000);
+                countdownEl.classList.add('text-brand-soft', 'font-semibold');
+                countdownEl.classList.remove('text-text-muted');
             } else {
                 if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-                dayNameEl.innerHTML = `<span class="accent">${longName}</span>`;
+                dayNameEl.innerHTML = `<span class="accent-text">${longName}</span>`;
+                dayNameEl.classList.remove('motion-safe:animate-friday-shimmer');
+                marqueeEl.classList.add('hidden');
+                marqueeEl.classList.remove('block');
+                countdownEl.classList.remove('text-brand-soft', 'font-semibold');
+                countdownEl.classList.add('text-text-muted');
+
                 let daysUntilFriday;
                 if (dayIdx <= 5) daysUntilFriday = 5 - dayIdx;
                 else daysUntilFriday = 6;
@@ -932,13 +403,20 @@
             }
 
             document.querySelectorAll('.pip').forEach(p => {
-                p.classList.remove('done', 'today');
+                p.classList.remove('pip-done', 'pip-today', 'motion-safe:animate-pip-pulse');
+                p.classList.add('pip-base');
                 const pipDay = +p.dataset.day;
                 if (dayIdx >= 1 && dayIdx <= 5) {
-                    if (pipDay < dayIdx) p.classList.add('done');
-                    else if (pipDay === dayIdx) p.classList.add('today');
+                    if (pipDay < dayIdx) {
+                        p.classList.remove('pip-base');
+                        p.classList.add('pip-done');
+                    } else if (pipDay === dayIdx) {
+                        p.classList.remove('pip-base');
+                        p.classList.add('pip-today', 'motion-safe:animate-pip-pulse');
+                    }
                 } else {
-                    p.classList.add('done');
+                    p.classList.remove('pip-base');
+                    p.classList.add('pip-done');
                 }
             });
         }
@@ -992,10 +470,8 @@
                     const ctx = chart.ctx;
                     const cx = chart.width / 2;
                     const cy = chart.height / 2;
-                    // Label radius pushed further toward the rim so names clear the fox center pin.
                     const radius = Math.min(cx, cy) * 0.72;
-                    // Font scales with wheel size so small viewports stay readable.
-                    const fontPx = Math.max(13, Math.round(Math.min(cx, cy) * 0.075));
+                    const fontPx = Math.max(13, Math.min(22, Math.round(Math.min(cx, cy) * 0.075)));
                     ctx.save();
                     names.forEach((name, index) => {
                         const angle = (index * 2 * Math.PI / names.length) - (Math.PI / 2) + (Math.PI / names.length);
@@ -1004,9 +480,7 @@
                         ctx.save();
                         ctx.translate(x, y);
                         let textAngle = angle;
-                        if (angle > Math.PI / 2 && angle < 3 * Math.PI / 2) {
-                            textAngle = angle + Math.PI;
-                        }
+                        if (angle > Math.PI / 2 && angle < 3 * Math.PI / 2) textAngle = angle + Math.PI;
                         ctx.rotate(textAngle);
                         ctx.fillStyle = '#F5F5F4';
                         ctx.font = `700 ${fontPx}px Geist, system-ui, sans-serif`;
@@ -1098,25 +572,13 @@
             const big = mode === 'welcome' || isFri;
             const count = big ? 110 : 80;
             const common = {
-                particleCount: count,
-                spread: 75,
-                startVelocity: 55,
-                ticks: 240,
-                gravity: 0.9,
-                colors,
-                scalar: 1.05
+                particleCount: count, spread: 75, startVelocity: 55,
+                ticks: 240, gravity: 0.9, colors, scalar: 1.05
             };
             confetti({ ...common, origin: { x: 0, y: 0.72 }, angle: 60 });
             confetti({ ...common, origin: { x: 1, y: 0.72 }, angle: 120 });
             if (big) {
-                confetti({
-                    ...common,
-                    particleCount: 50,
-                    spread: 110,
-                    startVelocity: 35,
-                    origin: { x: 0.5, y: 0 },
-                    angle: 270
-                });
+                confetti({ ...common, particleCount: 50, spread: 110, startVelocity: 35, origin: { x: 0.5, y: 0 }, angle: 270 });
             }
         }
 
@@ -1124,7 +586,6 @@
             const eyebrow = document.getElementById('winnerEyebrow');
             const nameEl = document.getElementById('winnerName');
             const subEl = document.getElementById('winnerSub');
-
             if (name === 'Gossip') {
                 eyebrow.textContent = 'Gossip time';
                 nameEl.textContent = 'Gossip';
@@ -1135,7 +596,9 @@
                 subEl.textContent = 'Are you ready to share your updates?';
             }
             document.getElementById('liveWinner').textContent = `Today's speaker is ${name}`;
-            document.getElementById('winner').classList.add('show');
+            const w = document.getElementById('winner');
+            w.classList.remove('hidden');
+            w.classList.add('flex');
             setTimeout(() => document.getElementById('closeWinner').focus(), 50);
 
             fireConfetti('win');
@@ -1143,7 +606,9 @@
             updateStats(name);
         }
         function closeWinner() {
-            document.getElementById('winner').classList.remove('show');
+            const w = document.getElementById('winner');
+            w.classList.add('hidden');
+            w.classList.remove('flex');
             document.getElementById('spinButton').focus();
         }
 
@@ -1182,13 +647,19 @@
             if (goal === null) return '';
             if (state === 'future') return '';
             const met = count <= goal;
-            const cls = met ? 'on-track' : 'over-goal';
+            const fillColor = met ? 'bg-success' : 'bg-danger';
+            const textColor = met ? 'text-success' : 'text-danger';
             const pct = goal === 0 ? 100 : Math.min(Math.round(count / goal * 100), 100);
             const detail = met ? `✓ on track` : `✗ +${count - goal} over`;
             return `
-                <div class="goal-bar-wrap">
-                    <div class="goal-bar-track"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
-                    <div class="goal-text ${cls}"><span class="gt-label">${detail}</span><span class="gt-value">≤ ${goal}</span></div>
+                <div class="mt-1.5">
+                    <div class="h-[3px] bg-surface-2 rounded-full overflow-hidden">
+                        <div class="${fillColor} h-full rounded-full transition-[width] duration-300" style="width:${pct}%"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[0.62rem] font-medium tracking-wider">
+                        <span class="text-text-dim">${detail}</span>
+                        <span class="${textColor} font-semibold">≤ ${goal}</span>
+                    </div>
                 </div>`;
         }
         function getCurrentPeriod() {
@@ -1207,6 +678,12 @@
             return saved ? JSON.parse(saved) : {};
         }
         function saveExpedites(data) { localStorage.setItem('foxesExpedites', JSON.stringify(data)); }
+
+        function periodCountColor(count, goal) {
+            if (goal === null) return 'text-brand';
+            return count <= goal ? 'text-success' : 'text-danger';
+        }
+
         function renderExpedites() {
             const data = loadExpedites();
             const { year, p: currentP } = getCurrentPeriod();
@@ -1219,23 +696,27 @@
                 if (ky < year) total += data[key] || 0;
             }
             document.getElementById('expeditesTotal').textContent = total;
+
             for (let pi = 1; pi <= 4; pi++) {
                 const key = periodKey(year, pi);
                 const count = data[key] || 0;
                 const goal = getPeriodGoal(year, pi, data);
                 const item = document.createElement('div');
-                item.className = 'period-item';
+                item.className = 'py-2 border-b border-border-c last:border-b-0';
+
                 if (pi === currentP) {
-                    const met = goal !== null && count <= goal;
-                    const over = goal !== null && count > goal;
-                    const countCls = met ? 'on-track' : over ? 'over-goal' : '';
+                    const countCls = periodCountColor(count, goal);
                     item.innerHTML = `
-                        <div class="period-row">
-                            <div class="period-label">P${pi} <span class="badge-current">Current</span></div>
-                            <div class="period-right">
-                                <button class="q-btn" id="q-dec-${pi}" aria-label="Decrease P${pi}">−</button>
-                                <span class="period-count ${countCls}">${count}</span>
-                                <button class="q-btn" id="q-inc-${pi}" aria-label="Increase P${pi}">+</button>
+                        <div class="flex items-center justify-between gap-1.5">
+                            <div class="flex items-center gap-1.5 text-sm font-medium text-text">
+                                P${pi} <span class="bg-brand text-white text-[0.5rem] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded">Current</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button id="q-dec-${pi}" aria-label="Decrease P${pi}"
+                                        class="w-6 h-6 rounded-md border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">−</button>
+                                <span class="${countCls} font-semibold text-base min-w-[24px] text-center tabular-nums">${count}</span>
+                                <button id="q-inc-${pi}" aria-label="Increase P${pi}"
+                                        class="w-6 h-6 rounded-md border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">+</button>
                             </div>
                         </div>
                         ${goalBar(goal, count, 'current')}`;
@@ -1249,15 +730,16 @@
                         saveExpedites(d); renderExpedites();
                     });
                 } else if (pi < currentP) {
-                    const met = goal !== null && count <= goal;
-                    const over = goal !== null && count > goal;
-                    const countCls = met ? 'on-track' : over ? 'over-goal' : '';
+                    const countCls = periodCountColor(count, goal);
                     item.innerHTML = `
-                        <div class="period-row">
-                            <div class="period-label">P${pi} <span class="badge-past">Past</span></div>
-                            <div class="period-right">
-                                <span class="period-count ${countCls}">${count}</span>
-                                <button class="q-edit-btn" data-key="${key}" data-label="P${pi}">Edit</button>
+                        <div class="flex items-center justify-between gap-1.5">
+                            <div class="flex items-center gap-1.5 text-sm font-medium text-text">
+                                P${pi} <span class="bg-surface-2 text-text-dim text-[0.5rem] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded">Past</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="${countCls} font-semibold text-base min-w-[24px] text-center tabular-nums">${count}</span>
+                                <button data-key="${key}" data-label="P${pi}"
+                                        class="q-edit-btn bg-transparent border border-border-c text-text-muted text-[0.6rem] font-semibold tracking-wider px-2 py-0.5 rounded-md uppercase hover:bg-surface-2 hover:text-brand hover:border-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Edit</button>
                             </div>
                         </div>
                         ${goalBar(goal, count, 'past')}`;
@@ -1267,13 +749,12 @@
                     });
                 } else {
                     item.innerHTML = `
-                        <div class="period-row">
-                            <div class="period-label muted">P${pi}</div>
-                            <div class="period-right">
-                                <span class="period-count muted">—</span>
+                        <div class="flex items-center justify-between gap-1.5">
+                            <div class="flex items-center gap-1.5 text-sm font-medium text-text-dim">P${pi}</div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-text-dim font-semibold text-base min-w-[24px] text-center">—</span>
                             </div>
-                        </div>
-                        ${goalBar(goal, count, 'future')}`;
+                        </div>`;
                     container.appendChild(item);
                 }
             }
@@ -1287,11 +768,15 @@
             modalTempCount = data[key] || 0;
             document.getElementById('editModalTitle').textContent = `Edit ${label}`;
             document.getElementById('modalCountDisplay').textContent = modalTempCount;
-            document.getElementById('editModalOverlay').classList.add('open');
+            const overlay = document.getElementById('editModalOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
             setTimeout(() => document.getElementById('modalSaveBtn').focus(), 50);
         }
         function closeEditModal() {
-            document.getElementById('editModalOverlay').classList.remove('open');
+            const overlay = document.getElementById('editModalOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
             modalKey = null;
         }
 
@@ -1343,8 +828,8 @@
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    if (document.getElementById('editModalOverlay').classList.contains('open')) closeEditModal();
-                    if (document.getElementById('winner').classList.contains('show')) closeWinner();
+                    if (!document.getElementById('editModalOverlay').classList.contains('hidden')) closeEditModal();
+                    if (!document.getElementById('winner').classList.contains('hidden')) closeWinner();
                 }
                 if (e.key === ' ' && document.activeElement === document.body) {
                     e.preventDefault();
@@ -1352,7 +837,6 @@
                 }
             });
 
-            // Re-render labels when the wheel resizes (responsive font scaling).
             const ro = new ResizeObserver(() => chart && chart.update('none'));
             ro.observe(document.getElementById('wheelChart'));
         });
