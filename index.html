@@ -30,8 +30,12 @@
             --accent: var(--brand);
             --ease: cubic-bezier(0.32, 0.72, 0, 1);
             --font: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-            --shell-pad: clamp(1rem, 3vw, 2rem);
-            --block-gap: clamp(1.25rem, 3.5vh, 2rem);
+            --shell-pad: clamp(0.85rem, 2.5vw, 1.75rem);
+            --block-gap: clamp(0.85rem, 2.8vh, 1.5rem);
+            /* Vertical budget reserved for everything OTHER than the wheel
+               (topbar + hero + button + gaps + paddings). The wheel sizes
+               itself to (viewport height − this), capped at its max width. */
+            --wheel-reserve: 440px;
         }
 
         [data-day="1"] { --accent: #6366F1; }
@@ -51,6 +55,7 @@
             color: var(--text);
             min-height: 100svh;
             overflow-x: hidden;
+            overflow-y: auto;
             -webkit-font-smoothing: antialiased;
             font-feature-settings: 'ss01', 'cv11';
         }
@@ -146,8 +151,9 @@
 
         .day-name {
             font-weight: 800;
-            /* Dual-axis: shrinks on narrow OR short viewports. */
-            font-size: clamp(2.25rem, min(8.5vw, 10.5vh), 6.5rem);
+            /* Dual-axis: shrinks on narrow OR short viewports.
+               Max capped at 5.5rem (was 6.5) so it doesn't dominate on laptops. */
+            font-size: clamp(2.25rem, min(7.5vw, 8.5vh), 5.5rem);
             line-height: 0.9;
             letter-spacing: -0.055em;
             text-transform: uppercase;
@@ -260,16 +266,19 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: clamp(1.25rem, 3.5vh, 2.25rem);
-            padding-top: clamp(1rem, 3vh, 2rem); /* breathing room for pointer */
+            gap: clamp(0.85rem, 2.5vh, 1.6rem);
+            padding-top: clamp(0.5rem, 1.8vh, 1.25rem);
             min-width: 0;
         }
 
         .wheel-container {
             position: relative;
-            /* Always sizes to its grid cell. Caps at 560px on huge screens,
-               and never larger than 70% of viewport height. */
-            width: min(560px, 100%, 70vh);
+            /* Sizes against (a) max design width, (b) container width,
+               (c) remaining viewport height after the reserved budget for
+               header + hero + button. The smallest wins, so the Spin button
+               is GUARANTEED to fit below it. */
+            width: min(540px, 100%, calc(100svh - var(--wheel-reserve)));
+            min-width: 220px;
             aspect-ratio: 1;
         }
 
@@ -703,28 +712,51 @@
 
         /* ── Responsive: rail stacks below at narrow widths ──────────────── */
         @media (max-width: 960px) {
+            :root { --wheel-reserve: 540px; } /* rail-row is now below, reserve more */
             .play-area {
                 grid-template-columns: 1fr;
-                gap: clamp(1.25rem, 3vh, 2rem);
+                gap: clamp(1rem, 2.5vh, 1.75rem);
             }
             .rail {
                 flex-direction: row;
                 flex-wrap: wrap;
             }
             .rail .card { flex: 1 1 280px; min-width: 0; }
+            .wheel-container {
+                width: min(460px, 100%, calc(100svh - var(--wheel-reserve)));
+            }
         }
 
         @media (max-width: 600px) {
+            :root { --wheel-reserve: 380px; }
             .rail { flex-direction: column; }
-            .day-name { font-size: clamp(2.4rem, 12vw, 4.5rem); }
-            .wheel-container { width: min(420px, 100%, 60vh); }
+            .day-name { font-size: clamp(2.3rem, 11vw, 4rem); }
+            .wheel-container {
+                width: min(420px, 100%, calc(100svh - var(--wheel-reserve)));
+                min-width: 200px;
+            }
         }
 
         @media (max-width: 380px) {
-            :root { --shell-pad: 0.85rem; }
-            .day-name { font-size: clamp(2.2rem, 13vw, 3.5rem); }
-            .wheel-container { width: min(340px, 100%, 55vh); }
+            :root { --shell-pad: 0.85rem; --wheel-reserve: 340px; }
+            .day-name { font-size: clamp(2rem, 12vw, 3.2rem); }
+            .wheel-container { width: min(320px, 100%); min-width: 180px; }
             .spin-button { min-width: 140px; }
+        }
+
+        /* Very short viewports (laptop in split-screen, 720p TV, etc.):
+           keep the wheel small enough that Spin always fits without scroll. */
+        @media (max-height: 760px) {
+            :root {
+                --block-gap: clamp(0.6rem, 2vh, 1rem);
+                --shell-pad: clamp(0.75rem, 2vw, 1.25rem);
+            }
+            .day-name { font-size: clamp(2rem, 7vh, 4rem); }
+            .hero { gap: clamp(0.2rem, 0.6vh, 0.4rem); }
+            .wheel-card {
+                gap: clamp(0.6rem, 1.8vh, 1rem);
+                padding-top: clamp(0.4rem, 1.2vh, 0.8rem);
+            }
         }
     </style>
 </head>
