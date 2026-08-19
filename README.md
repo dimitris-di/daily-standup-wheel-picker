@@ -33,18 +33,17 @@ npm test
 - Weighted picks that reduce immediate repeats.
 - Friday mode with a stronger Gossip weight, countdown, confetti, and chime.
 - Team pick statistics stored in the browser.
-- Expedite tracker with fiscal periods and editable past periods.
 - Day preview via `?day=N`, where `0=Sunday` through `6=Saturday`.
-- Responsive dark UI using Tailwind via CDN.
+- Responsive dark UI using hand-written static CSS (no framework, no web fonts).
 
 ## How It Works
 
 The app lives in [index.html](./index.html). It uses:
 
-- Tailwind CSS from the Tailwind CDN for layout and utilities.
-- Chart.js for the wheel rendering.
-- canvas-confetti for celebration effects.
-- Google Fonts for the Geist font.
+- Hand-written static CSS in [styles.css](./styles.css) for layout and utilities.
+- A dependency-free inline SVG for the wheel rendering.
+- canvas-confetti (the only external script) for celebration effects.
+- The browser's system font stack (no web fonts).
 - `localStorage` for user-local stats and settings.
 
 No server or database is required.
@@ -56,7 +55,6 @@ The app stores data only in the current browser:
 | Key | Purpose |
 | --- | --- |
 | `foxesWheelStats` | Current streak and total pick counts. |
-| `foxesExpedites` | Fiscal-period expedite counts. |
 | `foxesSound` | Chime toggle preference. |
 
 Clearing browser site data resets these values.
@@ -90,6 +88,7 @@ There is no install command and no build command.
 |-- package-lock.json
 |-- package.json
 |-- smoke.spec.js
+|-- styles.css
 `-- README.md
 ```
 

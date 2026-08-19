@@ -6,68 +6,12 @@
     <title>Foxes Team Daily Wheel</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
 
-    <!-- Prevent flash before Tailwind loads -->
-    <style>html, body { background: #0B0B0F; color: #F5F5F4; font-family: 'Geist', system-ui, sans-serif; }</style>
+    <!-- Prevent flash before styles.css loads -->
+    <style>html, body { background: #0B0B0F; color: #F5F5F4; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }</style>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bg:           '#0B0B0F',
-                        surface:      '#16161C',
-                        'surface-2':  '#1F1F27',
-                        'border-c':   '#26262F',
-                        text:         '#F5F5F4',
-                        'text-muted': '#A8A29E',
-                        'text-dim':   '#908A85',
-                        brand:        '#FF6A3D',
-                        'brand-soft': '#FFB199',
-                        'brand-deep': '#C4421F',
-                        success:      '#34D399',
-                        danger:       '#F87171',
-                    },
-                    fontFamily: {
-                        sans: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
-                    },
-                    animation: {
-                        marquee:         'marquee 26s linear infinite',
-                        'pip-pulse':     'pip-pulse 2.4s ease-in-out infinite',
-                        'friday-shimmer':'friday-shimmer 3.4s ease-in-out infinite alternate',
-                        aurora:          'aurora 22s ease-in-out infinite alternate',
-                        settle:          'settle 320ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    },
-                    keyframes: {
-                        marquee: { to: { transform: 'translateX(-100%)' } },
-                        'pip-pulse': {
-                            '50%': { boxShadow: '0 0 0 5px rgba(255,106,61,0.12), 0 0 38px var(--accent)' }
-                        },
-                        'friday-shimmer': {
-                            from: { textShadow: '0 0 28px rgba(255,106,61,0.28)' },
-                            to:   { textShadow: '0 0 70px rgba(255,106,61,0.55), 0 0 16px rgba(255,106,61,0.4)' }
-                        },
-                        aurora: {
-                            '0%':   { backgroundPosition: '0% 0%, 100% 0%, 50% 100%, 0% 100%, 100% 50%' },
-                            '50%':  { backgroundPosition: '50% 30%, 60% 40%, 30% 70%, 40% 60%, 70% 30%' },
-                            '100%': { backgroundPosition: '100% 100%, 0% 100%, 80% 0%, 100% 0%, 0% 80%' },
-                        },
-                        settle: {
-                            from: { opacity: '0', transform: 'scale(0.96)' },
-                            to:   { opacity: '1', transform: 'scale(1)' },
-                        },
-                    },
-                },
-            },
-        };
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <!-- Things Tailwind can't express cleanly: per-day accent, aurora gradient, wheel rim shadow stack. -->
     <style type="text/css">
@@ -81,15 +25,17 @@
 
         .accent-text { color: var(--accent); }
 
+        /* Soft blobs are pre-blurred via long gradient falloffs (no per-frame
+           filter re-rasterization); the drift is a compositor-only transform. */
         .friday-aurora {
+            inset: -12%;
             background:
-                radial-gradient(at 20% 30%, #FF6A3D 0px, transparent 50%),
-                radial-gradient(at 80% 20%, #C4421F 0px, transparent 50%),
-                radial-gradient(at 60% 80%, #FFB199 0px, transparent 50%),
-                radial-gradient(at 10% 90%, #FFD166 0px, transparent 50%),
-                radial-gradient(at 90% 60%, #9333EA 0px, transparent 50%);
+                radial-gradient(at 20% 30%, #FF6A3D 0%, transparent 62%),
+                radial-gradient(at 80% 20%, #C4421F 0%, transparent 62%),
+                radial-gradient(at 60% 80%, #FFB199 0%, transparent 62%),
+                radial-gradient(at 10% 90%, #FFD166 0%, transparent 62%),
+                radial-gradient(at 90% 60%, #9333EA 0%, transparent 62%);
             background-size: 200% 200%;
-            filter: blur(60px) saturate(1.2);
         }
         body[data-day="5"] .friday-aurora { opacity: 0.45; }
 
@@ -206,7 +152,6 @@
             .motion-only,
             .animate-settle { animation: none !important; }
             .wheel-transition { transition: none !important; }
-            .transition-\[width\] { transition: none !important; }
         }
     </style>
 </head>
@@ -275,17 +220,17 @@
 
         <!-- ROW 2 col 2: Stage (wheel + spin), centered as the primary action -->
         <main class="md:col-start-2 md:row-start-2 md:h-full min-h-0 flex flex-col items-center justify-center gap-5 sm:gap-6 md:-translate-y-4 lg:-translate-y-5">
+            <!-- Fallback (pre-JS) size leaves room for the wheel-float glow
+                 (6% overhang) so the page never overflows horizontally. -->
             <div id="wheelOuter"
                  class="wheel-float relative aspect-square mx-auto"
-                 style="width: var(--wheel-size, min(50svh, 100%, 500px)); height: var(--wheel-size, min(50svh, 100%, 500px));">
+                 style="width: var(--wheel-size, min(50svh, calc(100% - 24px), 500px)); height: var(--wheel-size, min(50svh, calc(100% - 24px), 500px));">
                 <div class="absolute top-[-12px] sm:top-[-16px] left-1/2 -translate-x-1/2 z-30 w-9 sm:w-10 md:w-11 pointer-events-none pointer-svg">
                     <svg viewBox="0 0 44 56" fill="none" class="block w-full h-auto" aria-hidden="true">
                         <path d="M22 56C22 56 4 30 4 18C4 8 12 0 22 0C32 0 40 8 40 18C40 30 22 56 22 56Z" fill="#FF6A3D"/>
                     </svg>
                 </div>
-                <div id="chartContainer" class="wheel-rim wheel-transition relative w-full h-full rounded-full overflow-hidden">
-                    <canvas id="wheelChart" class="!w-full !h-full"></canvas>
-                </div>
+                <div id="chartContainer" class="wheel-rim wheel-transition relative w-full h-full rounded-full overflow-hidden"></div>
                 <div class="center-pin absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
                             w-[18%] aspect-square rounded-full flex items-center justify-center text-2xl sm:text-3xl"
                      aria-hidden="true">🦊</div>
@@ -301,56 +246,18 @@
             </button>
         </main>
 
-        <!-- ROW 2 col 3: Rail (Stats + Expedites). self-start anchors to top-right.
-             max-h + overflow on md+ so the rail can't push the grid taller than viewport. -->
-        <aside class="md:col-start-3 md:row-start-2 md:self-start md:min-h-0 md:max-h-full md:overflow-y-auto
-                      flex flex-col sm:flex-row md:flex-col gap-3 sm:gap-4 md:gap-2.5 lg:gap-3 min-w-0">
-            <section class="panel-float bg-surface border border-border-c rounded-2xl p-4 md:p-3 md:flex-none flex-1 min-w-0">
+        <!-- ROW 2 col 3: Rail (Stats). self-start anchors to top-right.
+              max-h + overflow on md+ so the rail can't push the grid taller than viewport. -->
+        <aside class="md:col-start-3 md:row-start-2 md:self-start md:min-h-0 md:max-h-full md:overflow-y-auto min-w-0">
+            <section class="panel-float bg-surface border border-border-c rounded-2xl p-4 md:p-3">
                 <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-3 md:mb-2">Team Stats</h2>
                 <div id="currentStreakDisplay" class="text-sm pb-3 mb-3 md:pb-2 md:mb-2 border-b border-border-c">No picks yet</div>
                 <div id="pickHistory" class="text-sm"></div>
-            </section>
-            <section class="panel-float bg-surface border border-border-c rounded-2xl p-4 md:flex-none flex-1 min-w-0">
-                <h2 class="text-[0.65rem] font-semibold tracking-[0.22em] uppercase text-text-muted mb-4">🚨 Expedites</h2>
-                <div class="flex justify-between items-end pb-4 mb-1 border-b border-border-c text-text-muted text-sm">
-                    <span>Total to date</span>
-                    <span id="expeditesTotal" class="text-brand font-bold text-2xl leading-none tabular-nums">0</span>
-                </div>
-                <div id="quartersContainer"></div>
             </section>
         </aside>
     </div>
 
     <div id="liveWinner" class="sr-only" role="status" aria-live="polite"></div>
-
-    <!-- Edit Quarter Modal -->
-    <div id="editModalOverlay"
-         class="hidden fixed inset-0 z-[200] items-center justify-center p-4 bg-black/60 glass-overlay"
-         role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-        <div class="bg-surface border border-border-c rounded-3xl p-8 w-full max-w-[360px] text-center animate-settle">
-            <h3 id="editModalTitle" class="text-text-muted text-[0.7rem] font-semibold tracking-[0.22em] uppercase mb-1">Edit Quarter</h3>
-            <p class="text-text-dim text-sm mb-5">Adjust expedite count for this quarter</p>
-            <div class="flex items-center justify-center gap-5 mb-6">
-                <button id="modalDecBtn"
-                        type="button"
-                        class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                        aria-label="Decrease">−</button>
-                <div id="modalCountDisplay" class="text-text text-5xl font-bold leading-none tabular-nums min-w-[80px]">0</div>
-                <button id="modalIncBtn"
-                        type="button"
-                        class="w-10 h-10 rounded-xl border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors text-2xl flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                        aria-label="Increase">+</button>
-            </div>
-            <div class="flex gap-2.5 justify-center">
-                <button id="modalCancelBtn"
-                        type="button"
-                        class="px-5 py-2 bg-transparent text-text-muted border border-border-c rounded-xl text-sm hover:text-text hover:border-text-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Cancel</button>
-                <button id="modalSaveBtn"
-                        type="button"
-                        class="px-5 py-2 bg-brand text-white border-0 rounded-xl text-sm font-semibold hover:brightness-110 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Save</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Winner Modal -->
     <div id="winner"
@@ -379,7 +286,6 @@
             return new Date().getDay();
         }
 
-        let chart;
         let isSpinning = false;
         let currentRotation = 0;
 
@@ -476,7 +382,16 @@
             const isPreview = new URLSearchParams(location.search).has('day');
             const dayIdx = getDayIndex();
             const longName = dayLongNames[dayIdx];
-            document.body.dataset.day = String(dayIdx);
+            const auroraEl = document.querySelector('.friday-aurora');
+            if (dayIdx === 5) {
+                // Show first (at opacity 0), then flip the day so the CSS
+                // opacity transition can fade the aurora in.
+                auroraEl.style.display = 'block';
+                requestAnimationFrame(() => { document.body.dataset.day = '5'; });
+            } else {
+                auroraEl.style.display = 'none';
+                document.body.dataset.day = String(dayIdx);
+            }
 
             const fullDate = isPreview
                 ? `Preview · ${longName}`
@@ -557,61 +472,52 @@
             countdownEl.textContent = `Weekend in ${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
         }
 
-        function initChart() {
-            const ctx = document.getElementById('wheelChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: names,
-                    datasets: [{
-                        data: [1, 1, 1, 1, 1],
-                        backgroundColor: sliceColors,
-                        borderWidth: 1,
-                        borderColor: '#0B0B0F'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    elements: { arc: { borderWidth: 1 } },
-                    cutout: '34%',
-                    rotation: 0,
-                    animation: { animateRotate: false }
-                }
+        function buildWheel() {
+            const n = names.length;
+            const seg = 2 * Math.PI / n;
+            const R = 50;
+            const r = 17;
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.id = 'wheelChart';
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.setAttribute('class', 'w-full h-full');
+            svg.setAttribute('aria-hidden', 'true');
+            for (let i = 0; i < n; i++) {
+                const a0 = -Math.PI / 2 + i * seg;
+                const a1 = a0 + seg;
+                const d = [
+                    'M', (50 + R * Math.cos(a0)).toFixed(3), (50 + R * Math.sin(a0)).toFixed(3),
+                    'A', R, R, 0, 0, 1, (50 + R * Math.cos(a1)).toFixed(3), (50 + R * Math.sin(a1)).toFixed(3),
+                    'L', (50 + r * Math.cos(a1)).toFixed(3), (50 + r * Math.sin(a1)).toFixed(3),
+                    'A', r, r, 0, 0, 0, (50 + r * Math.cos(a0)).toFixed(3), (50 + r * Math.sin(a0)).toFixed(3),
+                    'Z'
+                ].join(' ');
+                const path = document.createElementNS(svgNS, 'path');
+                path.setAttribute('d', d);
+                path.setAttribute('fill', sliceColors[i % sliceColors.length]);
+                path.setAttribute('stroke', '#0B0B0F');
+                path.setAttribute('stroke-width', '0.4');
+                svg.appendChild(path);
+            }
+            const labelR = 36;
+            names.forEach((name, i) => {
+                const a = -Math.PI / 2 + (i + 0.5) * seg;
+                const x = 50 + labelR * Math.cos(a);
+                const y = 50 + labelR * Math.sin(a);
+                let deg = a * 180 / Math.PI;
+                if (a > Math.PI / 2 && a < 3 * Math.PI / 2) deg += 180;
+                const text = document.createElementNS(svgNS, 'text');
+                text.setAttribute('transform', `translate(${x.toFixed(3)} ${y.toFixed(3)}) rotate(${deg.toFixed(3)})`);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'central');
+                text.setAttribute('fill', '#F5F5F4');
+                text.setAttribute('font-size', '4');
+                text.setAttribute('font-weight', '700');
+                text.textContent = name.toUpperCase();
+                svg.appendChild(text);
             });
-            addLabelsToChart();
-        }
-        function addLabelsToChart() {
-            Chart.register({
-                id: 'labelPlugin',
-                afterDatasetsDraw: function(chart) {
-                    const ctx = chart.ctx;
-                    const cx = chart.width / 2;
-                    const cy = chart.height / 2;
-                    const radius = Math.min(cx, cy) * 0.72;
-                    const fontPx = Math.max(13, Math.min(22, Math.round(Math.min(cx, cy) * 0.075)));
-                    ctx.save();
-                    names.forEach((name, index) => {
-                        const angle = (index * 2 * Math.PI / names.length) - (Math.PI / 2) + (Math.PI / names.length);
-                        const x = cx + Math.cos(angle) * radius;
-                        const y = cy + Math.sin(angle) * radius;
-                        ctx.save();
-                        ctx.translate(x, y);
-                        let textAngle = angle;
-                        if (angle > Math.PI / 2 && angle < 3 * Math.PI / 2) textAngle = angle + Math.PI;
-                        ctx.rotate(textAngle);
-                        ctx.fillStyle = '#F5F5F4';
-                        ctx.font = `700 ${fontPx}px Geist, system-ui, sans-serif`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(name.toUpperCase(), 0, 0);
-                        ctx.restore();
-                    });
-                    ctx.restore();
-                }
-            });
-            chart.update('none');
+            document.getElementById('chartContainer').appendChild(svg);
         }
 
         function cryptoFloat() {
@@ -818,162 +724,12 @@
             } catch (e) {}
         }
 
-        // ── Expedites (logic preserved) ──────────────────────────────────────
-        function getPeriodGoal(year, p, data) {
-            const prevKey = p === 1 ? periodKey(year - 1, 4) : periodKey(year, p - 1);
-            if (!(prevKey in data)) return null;
-            return Math.floor((data[prevKey] || 0) * 0.7);
-        }
-        function goalBar(goal, count, state) {
-            if (goal === null) return '';
-            if (state === 'future') return '';
-            const met = count <= goal;
-            const fillColor = met ? 'bg-success' : 'bg-danger';
-            const textColor = met ? 'text-success' : 'text-danger';
-            const pct = goal === 0 ? 100 : Math.min(Math.round(count / goal * 100), 100);
-            const detail = met ? `✓ on track` : `✗ +${count - goal} over`;
-            return `
-                <div class="mt-2">
-                    <div class="h-1 bg-surface-2 rounded-full overflow-hidden">
-                        <div class="${fillColor} h-full rounded-full transition-[width] duration-300" style="width:${pct}%"></div>
-                    </div>
-                    <div class="flex justify-between mt-1.5 text-[0.68rem] font-medium">
-                        <span class="text-text-dim">${detail}</span>
-                        <span class="${textColor} font-semibold">≤ ${goal}</span>
-                    </div>
-                </div>`;
-        }
-        function getCurrentPeriod() {
-            const now = new Date();
-            const month = now.getMonth() + 1;
-            const year = now.getFullYear();
-            if (month === 12) return { year: year + 1, p: 1 };
-            if (month <= 2)   return { year, p: 1 };
-            if (month <= 5)   return { year, p: 2 };
-            if (month <= 8)   return { year, p: 3 };
-            return { year, p: 4 };
-        }
-        function periodKey(year, p) { return `${year}-P${p}`; }
-        function normalizeExpedites(value) {
-            const next = {};
-            if (!value || typeof value !== 'object') return next;
-            Object.entries(value).forEach(([key, count]) => {
-                if (/^\d{4}-P[1-4]$/.test(key)) next[key] = normalizeCount(count);
-            });
-            return next;
-        }
-        function loadExpedites() {
-            return normalizeExpedites(readJsonStorage('foxesExpedites', {}));
-        }
-        function saveExpedites(data) { writeJsonStorage('foxesExpedites', normalizeExpedites(data)); }
-
-        function periodCountColor(count, goal) {
-            if (goal === null) return 'text-brand';
-            return count <= goal ? 'text-success' : 'text-danger';
-        }
-
-        function renderExpedites() {
-            const data = loadExpedites();
-            const { year, p: currentP } = getCurrentPeriod();
-            const container = document.getElementById('quartersContainer');
-            container.innerHTML = '';
-            let total = 0;
-            for (let pi = 1; pi <= currentP; pi++) total += data[periodKey(year, pi)] || 0;
-            for (const key of Object.keys(data)) {
-                const ky = parseInt(key.split('-P')[0]);
-                if (ky < year) total += data[key] || 0;
-            }
-            document.getElementById('expeditesTotal').textContent = total;
-
-            for (let pi = 1; pi <= 4; pi++) {
-                const key = periodKey(year, pi);
-                const count = data[key] || 0;
-                const goal = getPeriodGoal(year, pi, data);
-                const item = document.createElement('div');
-                item.className = 'py-3 border-b border-border-c last:border-b-0';
-
-                if (pi === currentP) {
-                    const countCls = periodCountColor(count, goal);
-                    item.innerHTML = `
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 text-base font-semibold text-text">
-                                P${pi} <span class="bg-brand text-white text-[0.56rem] font-bold tracking-wider uppercase px-2 py-1 rounded-md">Current</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button id="q-dec-${pi}" aria-label="Decrease P${pi}"
-                                        type="button"
-                                        class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">−</button>
-                                <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
-                                <button id="q-inc-${pi}" aria-label="Increase P${pi}"
-                                        type="button"
-                                        class="w-7 h-7 rounded-lg border border-border-c bg-surface-2 text-brand hover:bg-brand hover:text-white hover:border-brand transition-colors flex items-center justify-center text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">+</button>
-                            </div>
-                        </div>
-                        ${goalBar(goal, count, 'current')}`;
-                    container.appendChild(item);
-                    item.querySelector(`#q-inc-${pi}`).addEventListener('click', () => {
-                        const d = loadExpedites(); d[key] = (d[key] || 0) + 1;
-                        saveExpedites(d); renderExpedites();
-                    });
-                    item.querySelector(`#q-dec-${pi}`).addEventListener('click', () => {
-                        const d = loadExpedites(); d[key] = Math.max(0, (d[key] || 0) - 1);
-                        saveExpedites(d); renderExpedites();
-                    });
-                } else if (pi < currentP) {
-                    const countCls = periodCountColor(count, goal);
-                    item.innerHTML = `
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 text-base font-semibold text-text">
-                                P${pi} <span class="bg-surface-2 text-text-dim text-[0.56rem] font-semibold tracking-wider uppercase px-2 py-1 rounded-md">Past</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="${countCls} font-semibold text-lg min-w-[30px] text-center tabular-nums">${count}</span>
-                                <button data-key="${key}" data-label="P${pi}"
-                                        type="button"
-                                        class="q-edit-btn bg-transparent border border-border-c text-text-muted text-[0.62rem] font-semibold tracking-wider px-2.5 py-1 rounded-lg uppercase hover:bg-surface-2 hover:text-brand hover:border-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">Edit</button>
-                            </div>
-                        </div>
-                        ${goalBar(goal, count, 'past')}`;
-                    container.appendChild(item);
-                    item.querySelector('.q-edit-btn').addEventListener('click', (e) => {
-                        openEditModal(e.target.dataset.key, e.target.dataset.label);
-                    });
-                } else {
-                    item.innerHTML = `
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2 text-base font-semibold text-text-dim">P${pi}</div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-text-dim font-semibold text-lg min-w-[30px] text-center">—</span>
-                            </div>
-                        </div>`;
-                    container.appendChild(item);
-                }
-            }
-        }
-
-        let modalKey = null;
-        let modalTempCount = 0;
-        function openEditModal(key, label) {
-            const data = loadExpedites();
-            modalKey = key;
-            modalTempCount = data[key] || 0;
-            document.getElementById('editModalTitle').textContent = `Edit ${label}`;
-            document.getElementById('modalCountDisplay').textContent = modalTempCount;
-            const overlay = document.getElementById('editModalOverlay');
-            openDialog(overlay, document.getElementById('modalSaveBtn'));
-        }
-        function closeEditModal() {
-            const overlay = document.getElementById('editModalOverlay');
-            closeDialog(overlay);
-            modalKey = null;
-        }
-
         window.addEventListener('load', () => {
+            try { localStorage.removeItem('foxesExpedites'); } catch (e) {}
             setupDateDisplay();
             loadStats();
             displayStats();
-            initChart();
-            renderExpedites();
+            buildWheel();
             fridayWelcome();
 
             const soundBtn = document.getElementById('soundToggle');
@@ -990,35 +746,12 @@
                 if (soundOn) playChime();
             });
 
-            document.getElementById('modalIncBtn').addEventListener('click', () => {
-                modalTempCount++;
-                document.getElementById('modalCountDisplay').textContent = modalTempCount;
-            });
-            document.getElementById('modalDecBtn').addEventListener('click', () => {
-                modalTempCount = Math.max(0, modalTempCount - 1);
-                document.getElementById('modalCountDisplay').textContent = modalTempCount;
-            });
-            document.getElementById('modalSaveBtn').addEventListener('click', () => {
-                if (modalKey !== null) {
-                    const d = loadExpedites();
-                    d[modalKey] = modalTempCount;
-                    saveExpedites(d);
-                    renderExpedites();
-                }
-                closeEditModal();
-            });
-            document.getElementById('modalCancelBtn').addEventListener('click', closeEditModal);
-            document.getElementById('editModalOverlay').addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) closeEditModal();
-            });
-
             document.getElementById('spinButton').addEventListener('click', spinWheel);
             document.getElementById('closeWinner').addEventListener('click', closeWinner);
 
             document.addEventListener('keydown', (e) => {
                 trapDialogFocus(e);
                 if (e.key === 'Escape') {
-                    if (!document.getElementById('editModalOverlay').classList.contains('hidden')) closeEditModal();
                     if (!document.getElementById('winner').classList.contains('hidden')) closeWinner();
                 }
                 if (e.key === ' ' && document.activeElement === document.body) {
@@ -1026,11 +759,6 @@
                     if (!isSpinning) spinWheel();
                 }
             });
-
-            if ('ResizeObserver' in window) {
-                const ro = new ResizeObserver(() => chart && chart.update('none'));
-                ro.observe(document.getElementById('wheelChart'));
-            }
 
             // Layout sizing: the wheel is the flexible piece. Measure the
             // actual stage slot and reserve room for the fixed Spin button.
@@ -1053,14 +781,12 @@
                         : stageRect.width - 22;
                     const size = Math.floor(Math.max(180, Math.min(maxSize, availableHeight, availableWidth)));
                     wheel.style.setProperty('--wheel-size', `${size}px`);
-                    if (chart) chart.update('none');
 
                     requestAnimationFrame(() => {
                         const overflow = btn.getBoundingClientRect().bottom - window.innerHeight + viewportPad;
                         if (overflow > 0) {
                             const adjusted = Math.max(140, size - Math.ceil(overflow));
                             wheel.style.setProperty('--wheel-size', `${adjusted}px`);
-                            if (chart) chart.update('none');
                         }
                     });
                 });
@@ -1088,7 +814,6 @@
                 nextMidnight.setHours(24, 0, 1, 0);
                 setTimeout(() => {
                     setupDateDisplay();
-                    renderExpedites();
                     scheduleCalendarRefresh();
                 }, nextMidnight - now);
             }

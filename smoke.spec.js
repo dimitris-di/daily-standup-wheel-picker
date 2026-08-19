@@ -12,14 +12,12 @@ test.describe('static app smoke', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.addInitScript(() => {
         localStorage.setItem('foxesWheelStats', '{bad json');
-        localStorage.setItem('foxesExpedites', JSON.stringify({ '2026-P2': '<img src=x onerror=alert(1)>', bad: 7 }));
         localStorage.setItem('foxesSound', 'false');
       });
       await page.goto(`${base}?day=5`);
       await expect(page.locator('#spinButton')).toBeEnabled();
       await expect(page.locator('#wheelChart')).toBeVisible();
       await expect(page.locator('#currentStreakDisplay')).toHaveText('No picks yet');
-      await expect(page.locator('#expeditesTotal')).toHaveText('0');
       await expect(page.locator('#soundToggle')).toHaveAttribute('aria-label', 'Enable chime');
 
       const metrics = await page.evaluate(() => {
@@ -63,22 +61,7 @@ test.describe('static app smoke', () => {
     await expect(page.locator('#winner.flex')).toBeVisible({ timeout: 1000 });
     await expect(page.locator('#spinButton')).toBeEnabled();
     await expect(page.locator('#closeWinner')).toBeFocused();
-    await expect(page.locator('#chartContainer')).toHaveCSS('transition-duration', '0s');
-    await context.close();
+      await expect(page.locator('#chartContainer')).toHaveCSS('transition-duration', '0s');
+      await context.close();
+    });
   });
-
-  test('edit modal traps focus and clears inert state on close', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 760 });
-    await page.goto(base);
-    await page.locator('.q-edit-btn').first().click();
-    await expect(page.locator('#editModalOverlay.flex')).toBeVisible();
-    await expect(page.locator('#modalSaveBtn')).toBeFocused();
-    await page.keyboard.press('Tab');
-    await expect(page.locator('#modalDecBtn')).toBeFocused();
-    await page.keyboard.press('Shift+Tab');
-    await expect(page.locator('#modalSaveBtn')).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(page.locator('#editModalOverlay')).toHaveClass(/hidden/);
-    await expect(page.locator('.relative.z-10')).not.toHaveAttribute('inert', '');
-  });
-});
